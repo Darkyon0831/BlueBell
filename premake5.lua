@@ -31,7 +31,7 @@ workspace "BlueBell"
 
         location "%{prj.name}/build"
 
-        includedirs { "dependencies/spdlog/include", "dependencies/imgui" }
+        includedirs { "dependencies/spdlog/include", "dependencies/imgui", "%{prj.name}/src" }
 
         kind "StaticLib"
         
