@@ -10,7 +10,8 @@ namespace BlueBell
 		enum Assets
 		{
 			Texture,
-			Shader
+			Shader,
+			Mesh
 		};
 
 		Asset(Assets assetType) { m_assetType = assetType; }
