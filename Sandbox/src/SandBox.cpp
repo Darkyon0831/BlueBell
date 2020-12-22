@@ -1,7 +1,7 @@
 #include "SandBox.h"
 
 #include "imgui.h"
-
+#include "Tests/HLSLParserTest.h"
 
 SandBox::SandBox()
 	: m_overlay("Test")
@@ -33,6 +33,9 @@ SandBox::SandBox()
 	m_overlay.AddVariable(&m_absolutePosition, "Absolute position", BlueBell::Overlay::VariableType::Vector2D);
 
 	BlueBell::EventManager::GetInstance()->AddReceiverToEvent<BlueBell::OnInputArgs>(BB_BIND_FUNC(OnInput, this));
+
+	HLSLParser parser;
+	parser.Parse();
 }
 
 SandBox::~SandBox()
