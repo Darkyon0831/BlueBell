@@ -15,7 +15,7 @@ namespace BlueBell
 		D3D11_RASTERIZER_DESC rasterDesc;
 		ID3D11Device* pDevice = Device::GetInstance()->GetDevice();
 
-		rasterDesc.FillMode = D3D11_FILL_SOLID;
+		rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
 		rasterDesc.CullMode = D3D11_CULL_BACK;
 		rasterDesc.FrontCounterClockwise = false;
 		rasterDesc.DepthBias = false;
