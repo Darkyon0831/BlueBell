@@ -55,14 +55,14 @@ workspace "BlueBell"
 
         location "%{prj.name}/build"
 
-        includedirs { "BlueBell/src", "dependencies/spdlog/include", "dependencies/imgui" }
+        includedirs { "BlueBell/src", "dependencies/spdlog/include", "dependencies/imgui", "ShaderLib/src" }
 
         kind "ConsoleApp"
 
         language "C++"
 
-        libdirs { "BlueBell/bin/%{cfg.platform}/%{cfg.buildcfg}", "ImGui/bin/%{cfg.platform}/%{cfg.buildcfg}"  }
-        links { "BlueBell", "ImGui" }
+        libdirs { "BlueBell/bin/%{cfg.platform}/%{cfg.buildcfg}", "ImGui/bin/%{cfg.platform}/%{cfg.buildcfg}", "ShaderLib/bin/%{cfg.platform}/%{cfg.buildcfg}"  }
+        links { "BlueBell", "ImGui", "ShaderLib" }
 
         files { "%{prj.name}/src/**.h", "%{prj.name}/src/**.cpp" }
 
