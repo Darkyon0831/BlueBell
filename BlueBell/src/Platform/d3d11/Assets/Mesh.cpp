@@ -2,7 +2,7 @@
 
 namespace BlueBell
 {
-	Mesh::Mesh(void*& rVertices, const int& rVerticesSize, void*& rIndicies, const int& rIndiciesSize)
+	Mesh::Mesh(void*& rVertices, const int& rVerticesSize, int*& rIndicies, const int& rIndiciesSize)
 		: Asset(Asset::Mesh)
 		, m_pVertexBuffer(BlueBerry()->Allocate<VertexBuffer>(rVertices, rVerticesSize))
 		, m_pIndexBuffer(BlueBerry()->Allocate<IndexBuffer>(rIndicies, rIndiciesSize))
@@ -18,7 +18,7 @@ namespace BlueBell
 
 	}
 
-	Mesh::Mesh(const int& rVerticesSize, void*& rIndicies, const int& rIndiciesSize)
+	Mesh::Mesh(const int& rVerticesSize, int*& rIndicies, const int& rIndiciesSize)
 		: Asset(Asset::Mesh)
 		, m_pVertexBuffer(BlueBerry()->Allocate<VertexBuffer>(rVerticesSize))
 		, m_pIndexBuffer(BlueBerry()->Allocate<IndexBuffer>(rIndicies, rIndiciesSize))
@@ -39,7 +39,7 @@ namespace BlueBell
 		m_pVertexBuffer->SetVerticies(rVertices, rSize);
 	}
 
-	void Mesh::SetIndicies(void*& rIndicies, const int& rSize)
+	void Mesh::SetIndicies(int*& rIndicies, const int& rSize)
 	{
 		m_pIndexBuffer->SetIndicies(rIndicies, rSize);
 	}
