@@ -17,8 +17,9 @@ project "ShaderLib"
 
     includedirs { "dependencies/glslang/include", "dependencies/spirv-cross/include" }
 
-    libdirs { "dependencies/glslang/lib", "dependencies/spirv-cross/lib/{cfg.buildcfg}"  }
-    links { "GenericCodeGen", "glslang", "HLSL", "MachineIndependent", "OGLCompiler", "OSDependent", "SPIRV", "SPVRemapper", "spirv-cross-core", "spirv-cross-cpp", "spirv-cross-glsl", "spirv-cross-msl", "spirv-cross-reflect", "spirv-cross-util", "spirv-cross-hlsl" }
+    libdirs { "dependencies/glslang/lib/%{cfg.buildcfg}", "dependencies/spirv-cross/lib/%{cfg.buildcfg}"  }
+    links { "spirv-cross-core", "spirv-cross-cpp", "spirv-cross-glsl", "spirv-cross-msl", "spirv-cross-reflect", "spirv-cross-util", "spirv-cross-hlsl", 
+        "GenericCodeGen", "glslang", "glslang-default-resource-limits", "HLSL", "MachineIndependent", "OGLCompiler", "SPIRV", "OSDependent" }
 
     files { "%{prj.name}/src/**.h", "%{prj.name}/src/**.cpp" }
 

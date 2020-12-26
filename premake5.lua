@@ -4,7 +4,7 @@ workspace "BlueBell"
     configurations { "Debug", "Release" }
     platforms { "Win32", "x64" }
 
-    defines { "BB_PLATFORM_WINDOWS" }
+    defines { "BB_PLATFORM_WINDOWS", "NOMINMAX" }
 
     startproject "Sandbox"
     dependson { "BlueBell" }
@@ -55,14 +55,15 @@ workspace "BlueBell"
 
         location "%{prj.name}/build"
 
-        includedirs { "BlueBell/src", "dependencies/spdlog/include", "dependencies/imgui", "ShaderLib/src" }
+        includedirs { "BlueBell/src", "dependencies/spdlog/include", "dependencies/imgui", "ShaderLib/src", "dependencies/glslang/include", "dependencies/spirv-cross/include" }
 
         kind "ConsoleApp"
 
         language "C++"
 
-        libdirs { "BlueBell/bin/%{cfg.platform}/%{cfg.buildcfg}", "ImGui/bin/%{cfg.platform}/%{cfg.buildcfg}", "ShaderLib/bin/%{cfg.platform}/%{cfg.buildcfg}"  }
-        links { "BlueBell", "ImGui", "ShaderLib" }
+        libdirs { "BlueBell/bin/%{cfg.platform}/%{cfg.buildcfg}", "dependencies/glslang/lib/%{cfg.buildcfg}", "dependencies/spirv-cross/lib/%{cfg.buildcfg}" }
+        links { "BlueBell", "ImGui", "ShaderLib", "spirv-cross-core", "spirv-cross-cpp", "spirv-cross-glsl", "spirv-cross-msl", "spirv-cross-reflect", "spirv-cross-util", "spirv-cross-hlsl", 
+            "GenericCodeGen", "glslang", "glslang-default-resource-limits", "HLSL", "MachineIndependent", "OGLCompiler", "SPIRV", "OSDependent" }
 
         files { "%{prj.name}/src/**.h", "%{prj.name}/src/**.cpp" }
 
