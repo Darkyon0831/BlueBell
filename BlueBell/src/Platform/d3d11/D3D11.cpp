@@ -26,7 +26,7 @@ namespace BlueBell
 		rasterDesc.MultisampleEnable = false;
 		rasterDesc.AntialiasedLineEnable = false;
 
-		m_shader.Load("../../game/shaders/basictriangleVS.hlsl", "../../game/shaders/basictrianglePS.hlsl");
+		m_shader.Load("../../game/shaders/hlslVertexSource.hlsl", "../../game/shaders/hlslFragmentSource.hlsl");
 
 		Vertex vertex[4];
 		vertex[0].position = Vector3D(-10.0f, -0.5f, 0.0f);
