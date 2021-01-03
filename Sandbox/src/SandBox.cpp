@@ -2,6 +2,9 @@
 
 #include "imgui.h"
 #include "Tests/HLSLParserTest.h"
+#include "Tests/HJSONTesting.h"
+
+#include "IntermediateRepresentation/IntermediateRepresentation.h"
 
 SandBox::SandBox()
 	: m_overlay("Test")
@@ -11,12 +14,6 @@ SandBox::SandBox()
 	BB_LOG_INFO("Sandbox loading up...");
 
 	CreateEntities();
-
-	BlueBell::StackPtr<int> stackPtr = BlueBell::MakeStackPtr<int>(22);
-
-	BlueBell::RefPtr<int> refPtr = BlueBell::MakeRefPtr<int>(222);
-
-	BlueBell::StackPtr<int> stackPtr2 = stackPtr;
 
 	BlueBell::EventManager::GetInstance()->AddReceiverToEvent<BlueBell::OnImGuiRenderArgs>(BB_BIND_FUNC(OnImGuiRender, this));
 
@@ -34,8 +31,18 @@ SandBox::SandBox()
 
 	BlueBell::EventManager::GetInstance()->AddReceiverToEvent<BlueBell::OnInputArgs>(BB_BIND_FUNC(OnInput, this));
 
-	HLSLParser parser;
-	parser.Parse();
+	HJSONTesting testing;
+	testing.Test();
+
+	/*StarLab::IntermediateRepresentation ir;
+	ir.LoadFromFile("../../game/shaders/StarLabTesting.starlab");
+	ir.CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STVertex, "OutputVertex");
+	ir.CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STPixel, "OutputPixel");*/
+
+	int i = 0;
+
+	/*HLSLParser parser;
+	parser.Parse();*/
 }
 
 SandBox::~SandBox()
@@ -46,11 +53,6 @@ void SandBox::CreateEntities()
 {
 	// Create entities here
 
-}
-
-void SandBox::TestFunction(BlueBell::RefPtr<int>& rRefPtr)
-{
-	
 }
 
 void SandBox::OnImGuiRender(BlueBell::OnImGuiRenderArgs& args)

@@ -11,8 +11,6 @@ public:
 
 	void CreateEntities() override;
 
-	void TestFunction(BlueBell::RefPtr<int>& rRefPtr);
-
 	void OnImGuiRender(BlueBell::OnImGuiRenderArgs& args);
 
 	void OnInput(BlueBell::OnInputArgs& args);
