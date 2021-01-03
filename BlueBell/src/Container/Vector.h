@@ -12,6 +12,7 @@ namespace BlueBell
 	{
 	public:
 		Vector(const std::initializer_list<T>& elements, IAllocator* pParentAllocator = nullptr);
+		Vector(const Vector<T>& elements, IAllocator* pParentAllocator = nullptr);
 		Vector(const size_t capacity = 0, IAllocator* pParentAllocator = nullptr); // TODO: remove pParent allocator
 		~Vector();
 
@@ -127,6 +128,18 @@ namespace BlueBell
 		Reserve(elements.size());
 
 		for (auto it = elements.begin(); it != elements.end(); it++)
+			PushBack(*it);
+	}
+
+	template<typename T>
+	inline Vector<T>::Vector(const Vector<T>& elements, IAllocator* pParentAllocator)
+		: m_capacity(0)
+		, m_size(0)
+		, m_stackAllocator(StackAllocator::UseHeader::NotUse, sizeof(T), 0, pParentAllocator)
+	{
+		Reserve(elements.GetSize());
+
+		for (auto it = elements.Begin(); it != elements.End(); it++)
 			PushBack(*it);
 	}
 

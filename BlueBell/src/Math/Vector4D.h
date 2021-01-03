@@ -1,9 +1,8 @@
-#pragma once
+#ifndef __BB_VECTOR4D_H__
+#define __BB_VECTOR4D_H__
 
 namespace BlueBell
 {
-	class Vector2D;
-
 	class Vector4D
 	{
 	public:
@@ -26,3 +25,5 @@ namespace BlueBell
 		float w = 0;
 	};
 }
+
+#endif // !__BB_VECTOR4D_H__

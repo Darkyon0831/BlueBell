@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __BB_VECTOR3D_H__
+#define __BB_VECTOR3D_H__
 
 #include <cmath>
 
@@ -44,3 +45,5 @@ namespace BlueBell
 		static float DotProduct(const Vector3D& v1, const Vector3D& v2);
 	};
 }
+
+#endif

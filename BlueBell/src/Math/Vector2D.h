@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __BB_VECTOR2D_H__
+#define __BB_VECTOR2D_H__
 
 namespace BlueBell
 {
@@ -27,3 +28,5 @@ namespace BlueBell
 		float y;
 	};
 }
+
+#endif // !__BB_VECTOR2D_H__
