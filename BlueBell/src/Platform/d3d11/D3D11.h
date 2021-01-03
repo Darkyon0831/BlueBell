@@ -7,11 +7,13 @@
 #include "Assets/Shader.h"
 #include "IndexBuffer.h"
 #include "VertexBuffer.h"
-#include "ConstantBuffer.h"
+#include "Material.h"
 
 #include "../../Math/Vector3D.h"
 #include "../../Math/Vector4D.h"
 #include "../../Math/Matrix.h"
+
+#include "IntermediateRepresentation/IntermediateRepresentation.h"
 
 namespace BlueBell
 {
@@ -53,12 +55,13 @@ namespace BlueBell
 			ID3D11Debug* m_pD3D11DebugHandle;
 		#endif // DEBUG
 
-		Shader m_shader;
 		ID3D11RasterizerState* m_pRasterizerState;
 
 		VertexBuffer* m_pVertexBuffer;
 		IndexBuffer* m_pIndexBuffer;
-		ConstantBuffer* m_pConstantBuffer;
+
+		StarLab::IntermediateRepresentation* m_pIr;
+		Material m_material;
 	};
 }
 

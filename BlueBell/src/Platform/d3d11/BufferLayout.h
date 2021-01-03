@@ -3,7 +3,6 @@
 
 #include "../../Container/Vector.h"
 #include "Assets/Shader.h"
-#include "../../Memory/RefPtr.h"
 
 #include <d3d11.h>
 #include <initializer_list>
@@ -17,22 +16,22 @@ namespace BlueBell
 
 		enum VariableDataType
 		{
-			Float, Flaot2, Float3, Float4, Int, Int2, Int3, Int4, Bool
+			BLFloat, 
+			BLFloat2, 
+			BLFloat3,
+			BLFloat4, 
+			BLInt
 		};
 
 		inline size_t GetVariableSize(VariableDataType dataType)
 		{
 			switch (dataType)
 			{
-				case BlueBell::BufferLayout::Float:		return 4;
-				case BlueBell::BufferLayout::Flaot2:	return 4 * 2;
-				case BlueBell::BufferLayout::Float3:	return 4 * 3;
-				case BlueBell::BufferLayout::Float4:	return 4 * 4;
-				case BlueBell::BufferLayout::Int:		return 4;
-				case BlueBell::BufferLayout::Int2:		return 4 * 2;
-				case BlueBell::BufferLayout::Int3:		return 4 * 3;
-				case BlueBell::BufferLayout::Int4:		return 4 * 4;
-				case BlueBell::BufferLayout::Bool:		return 1;
+				case BlueBell::BufferLayout::BLFloat:	return 4;
+				case BlueBell::BufferLayout::BLFloat2:	return 4 * 2;
+				case BlueBell::BufferLayout::BLFloat3:	return 4 * 3;
+				case BlueBell::BufferLayout::BLFloat4:	return 4 * 4;
+				case BlueBell::BufferLayout::BLInt:		return 4;
 				default:								return 0;
 			}
 		}
@@ -41,15 +40,11 @@ namespace BlueBell
 		{
 			switch (dataType)
 			{
-				case BlueBell::BufferLayout::Float:		return DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
-				case BlueBell::BufferLayout::Flaot2:	return DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT;
-				case BlueBell::BufferLayout::Float3:	return DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
-				case BlueBell::BufferLayout::Float4:	return DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
-				case BlueBell::BufferLayout::Int:		return DXGI_FORMAT::DXGI_FORMAT_R32_SINT;
-				case BlueBell::BufferLayout::Int2:		return DXGI_FORMAT::DXGI_FORMAT_R32G32_SINT;
-				case BlueBell::BufferLayout::Int3:		return DXGI_FORMAT::DXGI_FORMAT_R32G32B32_SINT;
-				case BlueBell::BufferLayout::Int4:		return DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_SINT;
-				case BlueBell::BufferLayout::Bool:		return DXGI_FORMAT::DXGI_FORMAT_R8_UINT;
+				case BlueBell::BufferLayout::BLFloat:		return DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+				case BlueBell::BufferLayout::BLFloat2:	return DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT;
+				case BlueBell::BufferLayout::BLFloat3:	return DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
+				case BlueBell::BufferLayout::BLFloat4:	return DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
+				case BlueBell::BufferLayout::BLInt:		return DXGI_FORMAT::DXGI_FORMAT_R32_SINT;
 				default:								return DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
 			}
 		}
@@ -66,6 +61,7 @@ namespace BlueBell
 
 		BufferLayout();
 		BufferLayout(const std::initializer_list<Variable>& variables, Shader& rShader);
+		BufferLayout(const Vector<Variable>& variables, Shader& rShader);
 		BufferLayout(const BufferLayout& rBufferLayout);
 		~BufferLayout();
 

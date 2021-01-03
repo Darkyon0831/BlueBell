@@ -5,6 +5,8 @@
 #include "../VertexBuffer.h"
 #include "../IndexBuffer.h"
 
+#include "Core/BlueBerry.h"
+
 namespace BlueBell 
 {
 	class Mesh : public Asset

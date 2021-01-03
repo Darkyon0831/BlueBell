@@ -108,6 +108,8 @@ namespace BlueBell
 
 		if (pPSErrorBlob != nullptr)
 			pPSErrorBlob->Release();
+
+		int i = 0;
 	}
 
 	void Shader::Bind()

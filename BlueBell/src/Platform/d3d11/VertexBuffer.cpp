@@ -44,7 +44,7 @@ BlueBell::VertexBuffer::~VertexBuffer()
 	m_pVertexBuffer->Release();
 }
 
-void BlueBell::VertexBuffer::SetInputLayout(BufferLayout& bufferLayout)
+void BlueBell::VertexBuffer::SetInputLayout(const BufferLayout& bufferLayout)
 {
 	m_bufferLayout = bufferLayout;
 }

@@ -15,7 +15,7 @@ namespace BlueBell
 		D3D11_RASTERIZER_DESC rasterDesc;
 		ID3D11Device* pDevice = Device::GetInstance()->GetDevice();
 
-		rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
+		rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
 		rasterDesc.CullMode = D3D11_CULL_BACK;
 		rasterDesc.FrontCounterClockwise = false;
 		rasterDesc.DepthBias = false;
@@ -25,8 +25,6 @@ namespace BlueBell
 		rasterDesc.ScissorEnable = false;
 		rasterDesc.MultisampleEnable = false;
 		rasterDesc.AntialiasedLineEnable = false;
-
-		m_shader.Load("../../game/shaders/hlslVertexSource.hlsl", "../../game/shaders/hlslFragmentSource.hlsl");
 
 		Vertex vertex[4];
 		vertex[0].position = Vector3D(-10.0f, -0.5f, 0.0f);
@@ -49,17 +47,25 @@ namespace BlueBell
 		indicies[4] = 3;
 		indicies[5] = 0;
 
-		BufferLayout layout = BufferLayout(
+		m_pIr = BlueBerry()->Allocate<StarLab::IntermediateRepresentation>();
+
+		m_pIr->LoadFromFile("../../game/shaders/StarLabTesting.starlab");
+		m_pIr->CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STVertex, "OutputVertex");
+		m_pIr->CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STPixel, "OutputPixel");
+
+		m_material.LoadFromStarLab(*m_pIr);
+
+		/*BufferLayout layout = BufferLayout(
 		{
-			{"POSITION", BufferLayout::VariableDataType::Float3},
-			{"COLOR", BufferLayout::VariableDataType::Float4}
-		}, m_shader);
+			{"POSITION", BufferLayout::VariableDataType::BLFloat3},
+			{"COLOR", BufferLayout::VariableDataType::BLFloat4}
+		}, m_shader);*/
 
 		m_pVertexBuffer = BlueBerry()->Allocate<VertexBuffer>(vertex, 4 * sizeof(Vertex));
 		m_pIndexBuffer = BlueBerry()->Allocate<IndexBuffer>(indicies, 6 * sizeof(int));
-		m_pConstantBuffer = BlueBerry()->Allocate<ConstantBuffer>(sizeof(ModelViewProjection));
+		//m_pConstantBuffer = BlueBerry()->Allocate<ConstantBuffer>(sizeof(ModelViewProjection));
 
-		m_pVertexBuffer->SetInputLayout(layout);
+		m_pVertexBuffer->SetInputLayout(*m_material.GetLayout());
 
 		BB_CHECK_HR(pDevice->CreateRasterizerState(&rasterDesc, &m_pRasterizerState), "Could not create rasterizer state");
 
@@ -73,7 +79,6 @@ namespace BlueBell
 
 		BlueBerry()->Deallocate(m_pVertexBuffer);
 		BlueBerry()->Deallocate(m_pIndexBuffer);
-		BlueBerry()->Deallocate(m_pConstantBuffer);
 
 		m_pRenderTargetView->Release();
 		m_pRasterizerState->Release();
@@ -128,16 +133,25 @@ namespace BlueBell
 		modelViewProj.projection = pCameraComponent->GetProjectionMatrix().Transpose(true);
 		modelViewProj.view = pCameraComponent->GetViewMatrix().Transpose(true);
 
-		m_pConstantBuffer->SetData(&modelViewProj, sizeof(modelViewProj));
+		Material::Value value = { 0 };
+		value.vM = modelViewProj.model;
+		m_material.SetPropertyValue("modelMatrix", value);
+
+		value.vM = modelViewProj.projection;
+		m_material.SetPropertyValue("viewMatrix", value);
+
+		value.vM = modelViewProj.view;
+		m_material.SetPropertyValue("projectionMatrix", value);
+
+		m_material.Build();
 
 		unsigned int stride = 4 * sizeof(float);
 		unsigned int offset = 0;
 
 		m_pVertexBuffer->Bind();
 		m_pIndexBuffer->Bind();
-		m_pConstantBuffer->Bind(ConstantBuffer::BindStage::VS);
-
-		m_shader.Bind();
+		
+		m_material.Bind();
 
 		pDeviceContext->RSSetState(m_pRasterizerState);
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

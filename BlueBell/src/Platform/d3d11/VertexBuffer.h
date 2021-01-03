@@ -16,7 +16,7 @@ namespace BlueBell
 		VertexBuffer(size_t size);
 		~VertexBuffer();
 
-		void SetInputLayout(BufferLayout& bufferLayout);
+		void SetInputLayout(const BufferLayout& bufferLayout);
 		void SetVerticies(void* pVerticies, size_t size);
 
 		void Bind();
