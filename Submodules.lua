@@ -7,7 +7,7 @@ project "ImGui"
     targetname "%{prj.name}"
     objdir "%{prj.name}/bin/obj"
 
-project "ShaderLib"
+project "StarLab"
 
     location "%{prj.name}/build"
 
@@ -15,11 +15,11 @@ project "ShaderLib"
 
     language "C++"
 
-    includedirs { "dependencies/glslang/include", "dependencies/spirv-cross/include" }
+    includedirs { "dependencies/glslang/include", "dependencies/spirv-cross/include", "dependencies/hjson/include" }
 
-    libdirs { "dependencies/glslang/lib/%{cfg.buildcfg}", "dependencies/spirv-cross/lib/%{cfg.buildcfg}"  }
+    libdirs { "dependencies/glslang/lib/%{cfg.buildcfg}", "dependencies/spirv-cross/lib/%{cfg.buildcfg}", "dependencies/hjson/lib/%{cfg.buildcfg}"  }
     links { "spirv-cross-core", "spirv-cross-cpp", "spirv-cross-glsl", "spirv-cross-msl", "spirv-cross-reflect", "spirv-cross-util", "spirv-cross-hlsl", 
-        "GenericCodeGen", "glslang", "glslang-default-resource-limits", "HLSL", "MachineIndependent", "OGLCompiler", "SPIRV", "OSDependent" }
+        "GenericCodeGen", "glslang", "glslang-default-resource-limits", "HLSL", "MachineIndependent", "OGLCompiler", "SPIRV", "OSDependent", "hjson" }
 
     files { "%{prj.name}/src/**.h", "%{prj.name}/src/**.cpp" }
 
