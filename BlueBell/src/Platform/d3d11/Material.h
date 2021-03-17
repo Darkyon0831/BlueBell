@@ -51,6 +51,7 @@ namespace BlueBell
 		};
 
 		Material();
+		~Material();
 
 		void SetPropertyValue(const std::string& rName, Value& value);
 
@@ -79,6 +80,9 @@ namespace BlueBell
 		ConstantBuffer* m_pVertexConstantBuffer;
 		ConstantBuffer* m_pPixelConstantBuffer;
 		Shader* m_pShader;
+
+		char* m_pVertexCBDataTEMP;
+		char* m_pPixelCBDataTEMP;
 	};
 }
 

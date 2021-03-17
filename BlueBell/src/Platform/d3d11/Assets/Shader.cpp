@@ -103,6 +103,16 @@ namespace BlueBell
 			&m_pPixelShader
 		), "Could not create pixel shader")
 
+		int size = sizeof(*m_pVertexShader);
+
+		int intAddress = *(int*)m_pVertexShader;
+		int intAddressPixel = *(int*)m_pPixelShader;
+
+		const FreeListAllocator* allocator = BlueBerry()->GetAllocator();
+
+		int value = BlueBerry()->GetIntValueOfMemory(m_pVertexShader, 4);
+		int valuePixel = BlueBerry()->GetIntValueOfMemory(m_pPixelShader, 4);
+
 		if(pVSErrorBlob != nullptr)
 			pVSErrorBlob->Release();
 
@@ -115,8 +125,14 @@ namespace BlueBell
 	void Shader::Bind()
 	{
 		ID3D11DeviceContext* pDeviceContext = Device::GetInstance()->GetDeviceContext();
+
+		int size = sizeof(*m_pVertexShader);
+
+		int value = BlueBerry()->GetIntValueOfMemory(m_pVertexShader, 4);
 		
 		pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
 		pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+
+		int i = 0;
 	}
 }

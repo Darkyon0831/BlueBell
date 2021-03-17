@@ -99,6 +99,22 @@ namespace BlueBell
 		return pHeader->size;
 	}
 
+	int FreeListAllocator::GetIntValueOfAddress(void* address)
+	{
+		DataHeader* pHeader = reinterpret_cast<DataHeader*>(reinterpret_cast<size_t>(address) - sizeof(DataHeader));
+
+		int value = 0;
+
+		for (int i = 0; i < pHeader->size; i++)
+		{
+			char addressChar = (reinterpret_cast<char*>(address))[i];
+
+			value += (int)addressChar;
+		}
+
+		return value;
+	}
+
 	void FreeListAllocator::Find(const size_t size, const size_t alignment, NodePtr& pPrevNode, NodePtr& pCurrentNode, size_t& rPadding)
 	{
 		if (m_findAlgorithm = FindAlgorithm::EFindFirst)

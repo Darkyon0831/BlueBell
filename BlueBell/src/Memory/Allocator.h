@@ -51,6 +51,8 @@ namespace BlueBell
 		template <typename Type>
 		void Deallocate(Type*& pType);
 
+		int GetIntValueOfMemory(const void* memory, size_t size);
+
 		/**
 		* Gets the underlying raw allocator of this object allocator
 		**/
@@ -95,6 +97,21 @@ namespace BlueBell
 		#endif // DEBUG
 
 		delete m_allocator;
+	}
+
+	template<typename _IAllocator>
+	inline int Allocator<_IAllocator>::GetIntValueOfMemory(const void* memory, size_t size)
+	{
+		int value = 0;
+
+		for (int i = 0; i < size; i++)
+		{
+			char addressChar = (reinterpret_cast<const char*>(memory))[i];
+
+			value += (int)addressChar;
+		}
+
+		return value;
 	}
 
 	template<typename _IAllocator>

@@ -63,6 +63,8 @@ namespace BlueBell
 
 		size_t GetHeaderSize(void* ptr);
 
+		int GetIntValueOfAddress(void* address);
+
 	private:
 
 		void Find(const size_t size, const size_t alignment, NodePtr& pPrevNode, NodePtr& pCurrentNode, size_t& rPadding);

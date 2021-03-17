@@ -19,8 +19,8 @@ namespace BlueBell
 		ID3D10Blob* GetVSBlob() { return m_pVSShaderBlob; }
 		ID3D10Blob* GetPSBlob() { return m_pPSShaderBlob; }
 
-		ID3D11VertexShader* GetVertexShader() { return m_pVertexShader; }
-		ID3D11PixelShader* GetPixelShader() { return m_pPixelShader; }
+		const ID3D11VertexShader* GetVertexShader() const { return m_pVertexShader; }
+		const ID3D11PixelShader* GetPixelShader() const { return m_pPixelShader; }
 
 		void Bind();
 

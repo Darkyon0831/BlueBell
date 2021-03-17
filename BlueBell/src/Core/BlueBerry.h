@@ -4,7 +4,7 @@
 #include "../Memory/Allocator.h"
 #include "../Memory/FreeListAllocator.h"
 
-#define BLUEBERRY_BUFFER_SIZE 1024 * 1024 * 512
+#define BLUEBERRY_BUFFER_SIZE 1024 * 1024 * 4
 
 namespace BlueBell
 {

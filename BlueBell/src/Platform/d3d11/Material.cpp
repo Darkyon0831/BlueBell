@@ -17,6 +17,17 @@ namespace BlueBell
 	{
 	}
 
+	Material::~Material()
+	{
+		//BlueBerry()->Deallocate(m_pBufferLayout);
+		//BlueBerry()->Deallocate(m_pVertexConstantBuffer);
+		//BlueBerry()->Deallocate(m_pPixelConstantBuffer);
+		BlueBerry()->Deallocate(m_pShader);
+		
+		//BlueBerry()->Deallocate(m_pVertexCBDataTEMP);
+		//BlueBerry()->Deallocate(m_pPixelCBDataTEMP);
+	}
+
 	void Material::SetPropertyValue(const std::string& rName, Value& value)
 	{
 		Property* pProperty = nullptr;
@@ -58,6 +69,7 @@ namespace BlueBell
 			}
 
 			m_pVertexConstantBuffer = BlueBerry()->Allocate<ConstantBuffer>(m_vertexConstantBufferSize);
+			m_pVertexCBDataTEMP = BlueBerry()->AllocateArray<char>(m_vertexConstantBufferSize);
 		}
 
 		const std::vector<StarLab::Value>& rUsedPixelProperties = rIr.GetPixelShader().GetUsedProperties();
@@ -74,6 +86,7 @@ namespace BlueBell
 			}
 
 			m_pPixelConstantBuffer = BlueBerry()->Allocate<ConstantBuffer>(m_pixelConstantBufferSize);
+			m_pPixelCBDataTEMP = BlueBerry()->AllocateArray<char>(m_pixelConstantBufferSize);
 		}
 
 		Vector<BufferLayout::Variable> bufferInitList(rIr.GetVertexShader().GetIn().GetValues().size(), BlueBerry()->GetAllocator());
@@ -91,6 +104,8 @@ namespace BlueBell
 		m_pShader->Load("../../game/fileoutputs/OutputVertex.hlsl", "../../game/fileoutputs/OutputPixel.hlsl");
 
 		m_pBufferLayout = BlueBerry()->Allocate<BufferLayout>(bufferInitList, *m_pShader);
+
+		int i = 0;
 	}
 
 	void Material::Build()
@@ -99,8 +114,6 @@ namespace BlueBell
 
 		if (m_vertexConstantBufferSize > 0)
 		{
-			char* vertexCBData = BlueBerry()->AllocateArray<char>(m_vertexConstantBufferSize);
-
 			for (int i = 0; i < m_vertexUsedProperties.size(); i++)
 			{
 				StageProperty sProperty = m_vertexUsedProperties.at(i);
@@ -120,18 +133,15 @@ namespace BlueBell
 
 				size_t variableSize = GetTypeSize(sProperty.type);
 
-				memcpy(&vertexCBData[currentOffset], &pProperty->value, variableSize);
+				memcpy(&m_pVertexCBDataTEMP[currentOffset], &pProperty->value, variableSize);
 				currentOffset += variableSize;
 			}
 
-			m_pVertexConstantBuffer->SetData((void*)vertexCBData, m_vertexConstantBufferSize);
-
-			BlueBerry()->Deallocate(vertexCBData);
+			m_pVertexConstantBuffer->SetData((void*)m_pVertexCBDataTEMP, m_vertexConstantBufferSize);
 		}
 
 		if (m_pixelConstantBufferSize > 0)
 		{
-			char* pixelCBData = BlueBerry()->AllocateArray<char>(m_pixelConstantBufferSize);
 			currentOffset = 0;
 
 			for (int i = 0; i < m_pixelUsedProperties.size(); i++)
@@ -153,13 +163,11 @@ namespace BlueBell
 
 				size_t variableSize = GetTypeSize(sProperty.type);
 
-				memcpy(&pixelCBData[currentOffset], &pProperty->value, variableSize);
+				memcpy(&m_pPixelCBDataTEMP[currentOffset], &pProperty->value, variableSize);
 				currentOffset += variableSize;
 			}
 
-			m_pPixelConstantBuffer->SetData((void*)pixelCBData, m_pixelConstantBufferSize);
-
-			BlueBerry()->Deallocate(pixelCBData);
+			m_pPixelConstantBuffer->SetData((void*)m_pPixelCBDataTEMP, m_pixelConstantBufferSize);
 		}
 	}
 
@@ -171,6 +179,7 @@ namespace BlueBell
 		if (m_pixelConstantBufferSize > 0)
 			m_pPixelConstantBuffer->Bind(ConstantBuffer::BindStage::PS);
 
+		m_pBufferLayout->Bind();
 		m_pShader->Bind();
 	}
 

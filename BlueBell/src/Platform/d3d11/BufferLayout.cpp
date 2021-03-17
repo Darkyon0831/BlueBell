@@ -56,14 +56,19 @@ namespace BlueBell
 		BB_CHECK_HR(hr, "Could not create input layout");
 	}
 
-	BufferLayout::BufferLayout(const Vector<Variable>& variables, Shader& rShader)
-		: m_variables(variables, BlueBerry()->GetAllocator())
+	BufferLayout::BufferLayout(Vector<Variable>& variables, Shader& rShader)
+		: m_variables(0, BlueBerry()->GetAllocator())
 		, m_stride(0)
 		, m_pInputLayout(nullptr)
 	{
-		ID3D11Device* pDevice = Device::GetInstance()->GetDevice();
+		for (int i = 0; i < variables.GetSize(); i++)
+		{
+			const Variable& variable = variables.At(i);
 
-		size_t size = BlueBerry()->GetAllocator()->GetHeaderSize(m_variables.GetAllocator().GetBlock());
+			m_variables.PushBack(variable);
+		}
+
+		ID3D11Device* pDevice = Device::GetInstance()->GetDevice();
 
 		size_t offset = 0;
 		size_t stride = 0;
@@ -83,7 +88,7 @@ namespace BlueBell
 			pElementDesc[i].SemanticIndex = 0;
 			pElementDesc[i].Format = GetD3D11DataType(it->dataType);
 			pElementDesc[i].InputSlot = 0;
-			pElementDesc[i].AlignedByteOffset = it->offset;
+			pElementDesc[i].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 			pElementDesc[i].InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
 			pElementDesc[i].InstanceDataStepRate = 0;
 
@@ -103,6 +108,10 @@ namespace BlueBell
 	BufferLayout::~BufferLayout()
 	{
 		m_pInputLayout->Release();
+	}
+
+	void BufferLayout::AddVariable(const Variable & variable)
+	{
 	}
 
 	BufferLayout& BufferLayout::operator=(const BufferLayout & rBufferLayout)

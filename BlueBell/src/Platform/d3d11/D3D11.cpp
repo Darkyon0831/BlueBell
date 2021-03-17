@@ -55,19 +55,16 @@ namespace BlueBell
 
 		m_material.LoadFromStarLab(*m_pIr);
 
-		/*BufferLayout layout = BufferLayout(
-		{
-			{"POSITION", BufferLayout::VariableDataType::BLFloat3},
-			{"COLOR", BufferLayout::VariableDataType::BLFloat4}
-		}, m_shader);*/
-
 		m_pVertexBuffer = BlueBerry()->Allocate<VertexBuffer>(vertex, 4 * sizeof(Vertex));
 		m_pIndexBuffer = BlueBerry()->Allocate<IndexBuffer>(indicies, 6 * sizeof(int));
-		//m_pConstantBuffer = BlueBerry()->Allocate<ConstantBuffer>(sizeof(ModelViewProjection));
 
 		m_pVertexBuffer->SetInputLayout(*m_material.GetLayout());
 
 		BB_CHECK_HR(pDevice->CreateRasterizerState(&rasterDesc, &m_pRasterizerState), "Could not create rasterizer state");
+
+		const ID3D11VertexShader* vertexShader = m_material.GetShader()->GetVertexShader();
+
+		int value = BlueBerry()->GetIntValueOfMemory(vertexShader, 4);
 
 		int i = 0;
 	}
@@ -82,13 +79,18 @@ namespace BlueBell
 
 		m_pRenderTargetView->Release();
 		m_pRasterizerState->Release();
+
+#ifdef DEBUG
 		m_pD3D11DebugHandle->Release();
+#endif // DEBUG
 	}
 
 	void D3D11::InitSwapChain(HWND& windowHandle)
 	{
+#ifdef DEBUG
 		ID3D11Device* pDevice = Device::GetInstance()->GetDevice();
 		pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&m_pD3D11DebugHandle));
+#endif // DEBUG
 
 		m_pSwapChain = BlueBerry()->Allocate<SwapChain>();
 		m_pSwapChain->Init(windowHandle);
@@ -122,6 +124,14 @@ namespace BlueBell
 
 	void D3D11::Render()
 	{
+		const ID3D11VertexShader* vertexShader = m_material.GetShader()->GetVertexShader();
+		const ID3D11PixelShader* pixelShader = m_material.GetShader()->GetPixelShader();
+
+		int ddd = BlueBerry()->GetIntValueOfMemory(vertexShader, 4);
+		int dddd = BlueBerry()->GetIntValueOfMemory(pixelShader, 4);
+
+		int i = 0;
+
 		ID3D11DeviceContext* pDeviceContext = Device::GetInstance()->GetDeviceContext();
 		Scene* pActiveScene = SceneManager::GetInstance()->GetActiveScene();
 
