@@ -22,6 +22,8 @@ namespace BlueBell
 		data.SysMemSlicePitch = 0;
 
 		BB_CHECK_HR(pDevice->CreateBuffer(&bufferDesc, &data, &m_pIndexBuffer), "Could not create vertex buffer");
+
+		int i = 0;
 	}
 
 	IndexBuffer::IndexBuffer(size_t size)

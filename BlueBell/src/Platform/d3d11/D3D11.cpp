@@ -16,7 +16,7 @@ namespace BlueBell
 		ID3D11Device* pDevice = Device::GetInstance()->GetDevice();
 
 		rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
-		rasterDesc.CullMode = D3D11_CULL_BACK;
+		rasterDesc.CullMode = D3D11_CULL_NONE;
 		rasterDesc.FrontCounterClockwise = false;
 		rasterDesc.DepthBias = false;
 		rasterDesc.DepthBiasClamp = 0;
@@ -57,6 +57,11 @@ namespace BlueBell
 
 		m_pVertexBuffer = BlueBerry()->Allocate<VertexBuffer>(vertex, 4 * sizeof(Vertex));
 		m_pIndexBuffer = BlueBerry()->Allocate<IndexBuffer>(indicies, 6 * sizeof(int));
+
+		size_t memUsed = BlueBerry()->GetAllocator()->GetBlockSize() - BlueBerry()->GetAllocator()->GetMemLeft();
+		char* currentAddress = BlueBerry()->GetAllocator()->GetBlock() + memUsed;
+		const ID3D11VertexShader* vertexS = m_material.GetShader()->GetVertexShader();
+		const ID3D11PixelShader* pixelS = m_material.GetShader()->GetPixelShader();
 
 		m_pVertexBuffer->SetInputLayout(*m_material.GetLayout());
 

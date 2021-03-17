@@ -60,8 +60,8 @@ namespace BlueBell
 		};
 
 		BufferLayout();
-		BufferLayout(const std::initializer_list<Variable>& variables, Shader& rShader);
-		BufferLayout(Vector<Variable>& variables, Shader& rShader);
+		BufferLayout(const std::initializer_list<Variable>& variables, Shader* rShader);
+		BufferLayout(Vector<Variable>& variables, Shader* rShader);
 		BufferLayout(const BufferLayout& rBufferLayout);
 		~BufferLayout();
 

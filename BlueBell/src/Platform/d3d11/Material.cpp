@@ -19,12 +19,12 @@ namespace BlueBell
 
 	Material::~Material()
 	{
-		//BlueBerry()->Deallocate(m_pBufferLayout);
-		//BlueBerry()->Deallocate(m_pVertexConstantBuffer);
+		BlueBerry()->Deallocate(m_pBufferLayout);
+		BlueBerry()->Deallocate(m_pVertexConstantBuffer);
 		//BlueBerry()->Deallocate(m_pPixelConstantBuffer);
 		BlueBerry()->Deallocate(m_pShader);
 		
-		//BlueBerry()->Deallocate(m_pVertexCBDataTEMP);
+		BlueBerry()->Deallocate(m_pVertexCBDataTEMP);
 		//BlueBerry()->Deallocate(m_pPixelCBDataTEMP);
 	}
 
@@ -103,7 +103,7 @@ namespace BlueBell
 		m_pShader = BlueBerry()->Allocate<Shader>();
 		m_pShader->Load("../../game/fileoutputs/OutputVertex.hlsl", "../../game/fileoutputs/OutputPixel.hlsl");
 
-		m_pBufferLayout = BlueBerry()->Allocate<BufferLayout>(bufferInitList, *m_pShader);
+		m_pBufferLayout = BlueBerry()->Allocate<BufferLayout>(bufferInitList, m_pShader);
 
 		int i = 0;
 	}

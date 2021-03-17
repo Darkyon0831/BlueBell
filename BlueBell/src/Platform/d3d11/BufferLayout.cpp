@@ -12,7 +12,7 @@ namespace BlueBell
 	{
 	}
 
-	BufferLayout::BufferLayout(const std::initializer_list<Variable>& variables, Shader& rShader)
+	BufferLayout::BufferLayout(const std::initializer_list<Variable>& variables, Shader* rShader)
 		: m_variables(variables, BlueBerry()->GetAllocator())
 		, m_stride(0)
 		, m_pInputLayout()
@@ -48,7 +48,7 @@ namespace BlueBell
 
 		m_stride = stride;
 
-		ID3D10Blob* pVertexBlob = rShader.GetVSBlob();
+		ID3D10Blob* pVertexBlob = rShader->GetVSBlob();
 
 		HRESULT hr = pDevice->CreateInputLayout(pElementDesc, m_variables.GetSize(), pVertexBlob->GetBufferPointer(), pVertexBlob->GetBufferSize(), &m_pInputLayout);
 
@@ -56,7 +56,7 @@ namespace BlueBell
 		BB_CHECK_HR(hr, "Could not create input layout");
 	}
 
-	BufferLayout::BufferLayout(Vector<Variable>& variables, Shader& rShader)
+	BufferLayout::BufferLayout(Vector<Variable>& variables, Shader* rShader)
 		: m_variables(0, BlueBerry()->GetAllocator())
 		, m_stride(0)
 		, m_pInputLayout(nullptr)
@@ -97,7 +97,7 @@ namespace BlueBell
 
 		m_stride = stride;
 
-		ID3D10Blob* pVertexBlob = rShader.GetVSBlob();
+		ID3D10Blob* pVertexBlob = rShader->GetVSBlob();
 
 		HRESULT hr = pDevice->CreateInputLayout(pElementDesc, m_variables.GetSize(), pVertexBlob->GetBufferPointer(), pVertexBlob->GetBufferSize(), &m_pInputLayout);
 
