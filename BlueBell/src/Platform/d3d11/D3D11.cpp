@@ -27,16 +27,16 @@ namespace BlueBell
 		rasterDesc.AntialiasedLineEnable = false;
 
 		Vertex vertex[4];
-		vertex[0].position = Vector3D(-10.0f, -0.5f, 0.0f);
+		vertex[0].position = Vector3D(-10.0f, -0.5f, -5.0f);
 		vertex[0].color = Vector4D(0.2f, 0.5f, 0.2f, 1.0f);
 		
-		vertex[1].position = Vector3D(-10.0f, 0.5f, 0.0f);
+		vertex[1].position = Vector3D(-10.0f, 0.5f, -5.0f);
 		vertex[1].color = Vector4D(0.2f, 0.5f, 0.2f, 1.0f);
 
-		vertex[2].position = Vector3D(10.0f, 0.5f, 0.0f);
+		vertex[2].position = Vector3D(10.0f, 0.5f, -5.0f);
 		vertex[2].color = Vector4D(0.2f, 0.5f, 0.2f, 1.0f);
 
-		vertex[3].position = Vector3D(10.0f, -0.5f, 0.0f);
+		vertex[3].position = Vector3D(10.0f, -0.5f, -5.0f);
 		vertex[3].color = Vector4D(0.2f, 0.5f, 0.2f, 1.0f);
 
 		int indicies[6];
@@ -149,14 +149,16 @@ namespace BlueBell
 		modelViewProj.view = pCameraComponent->GetViewMatrix().Transpose(true);
 
 		Material::Value value = { 0 };
+		Material::Value value2 = { 0 };
+		Material::Value value3 = { 0 };
 		value.vM = modelViewProj.model;
 		m_material.SetPropertyValue("modelMatrix", value);
 
-		value.vM = modelViewProj.projection;
-		m_material.SetPropertyValue("viewMatrix", value);
+		value2.vM = modelViewProj.view;
+		m_material.SetPropertyValue("viewMatrix", value2);
 
-		value.vM = modelViewProj.view;
-		m_material.SetPropertyValue("projectionMatrix", value);
+		value3.vM = modelViewProj.projection;
+		m_material.SetPropertyValue("projectionMatrix", value3);
 
 		m_material.Build();
 
