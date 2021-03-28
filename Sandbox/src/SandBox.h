@@ -1,6 +1,7 @@
 #include "BlueBell.h"
 
 #include "Events/EventManager.h"
+#include <BlueFBX/Importer.h>
 
 class SandBox : public BlueBell::Application
 {

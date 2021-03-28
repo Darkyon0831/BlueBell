@@ -6,6 +6,8 @@
 
 #include "IntermediateRepresentation/IntermediateRepresentation.h"
 
+#include "Memory/RefPtr.h"
+
 SandBox::SandBox()
 	: m_overlay("Test")
 	, m_relativePosition(BlueBell::Vector2D::Zero)
@@ -19,7 +21,7 @@ SandBox::SandBox()
 
 	BlueBell::GameObject gameObject;
 
-	BlueBell::CameraComponent* pCameraComponent = gameObject.CreateComponent<BlueBell::CameraComponent>(0, 0, 2564, 990, -1, 1000);
+	BlueBell::CameraComponent* pCameraComponent = gameObject.CreateComponent<BlueBell::CameraComponent>(0, 0, 1960, 1080, -1, 1000);
 	gameObject.CreateComponent<BlueBell::CameraControllerComponent>();
 	
 	float aspectRatio = 2564.0f / 990.0f;
@@ -34,15 +36,8 @@ SandBox::SandBox()
 	HJSONTesting testing;
 	testing.Test();
 
-	/*StarLab::IntermediateRepresentation ir;
-	ir.LoadFromFile("../../game/shaders/StarLabTesting.starlab");
-	ir.CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STVertex, "OutputVertex");
-	ir.CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STPixel, "OutputPixel");*/
-
-	int i = 0;
-
-	/*HLSLParser parser;
-	parser.Parse();*/
+	BlueFBX::Importer importer;
+	importer.Import("../../game/models/simpleCube2.fbx");
 }
 
 SandBox::~SandBox()
