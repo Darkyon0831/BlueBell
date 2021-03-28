@@ -5,26 +5,50 @@
 
 namespace StarLab
 {
-	void IntermediateRepresentation::Load(std::string&& str)
+	void IntermediateRepresentation::Load(const std::string& str)
 	{
 		Hjson::Value& root = Hjson::Unmarshal(str);
 
 		Parse(root);
 	}
 
-	void IntermediateRepresentation::LoadFromFile(std::string&& file)
+	void IntermediateRepresentation::LoadFromFile(const std::string& file)
 	{
 		Hjson::Value& root = Hjson::UnmarshalFromFile(file);
 
 		Parse(root);
 	}
 
-	void IntermediateRepresentation::CompileAndSaveToFile(Stage&& stage, std::string filename)
+	void IntermediateRepresentation::LoadIncludes(const Hjson::Value& includes)
+	{
+		if (includes.defined())
+		{
+			for (int i = 0; i < includes.size(); i++)
+			{
+				std::string file = includes[i].to_string();
+
+				std::stringstream ss;
+				ss << "../../game/shaders/";
+				ss << file.c_str();
+				ss << ".starlab";
+
+				Hjson::Value& root = Hjson::UnmarshalFromFile(ss.str());
+
+				Parse(root);
+			}
+		}
+	}
+
+	void IntermediateRepresentation::CompileAndSaveToFile(const Stage& stage, std::string filename)
 	{
 		std::string compiledShader = Compile(stage);
 
 		std::stringstream filePath;
-		filePath << "../../game/fileoutputs/" << filename << ".hlsl";
+
+		if (stage == Stage::STVertex)
+			filePath << "../../game/shaders/temp/" << filename << "Vertex" << ".hlsl";
+		else
+			filePath << "../../game/shaders/temp/" << filename << "Pixel" << ".hlsl";
 
 		std::ofstream out;
 		out.open(filePath.str().c_str());
@@ -32,107 +56,6 @@ namespace StarLab
 		out.write(compiledShader.c_str(), compiledShader.size());
 
 		out.close();
-	}
-
-	std::string IntermediateRepresentation::Compile(Stage&& stage)
-	{
-		const Shader* shader;
-		std::string compiledShader;
-		std::stringstream compiledShaderBuilder;
-
-		if (stage == Stage::STVertex)
-			shader = &vertexShader;
-		else
-			shader = &pixelShader;
-
-		// Write constant buffer layout
-		compiledShaderBuilder << "cbuffer ConstantBuffer : register(b0)\n{\n";
-
-		for (int i = 0; i < shader->usedProperties.size(); i++)
-		{
-			const Value& value = shader->usedProperties.at(i);
-
-			compiledShaderBuilder << "\t" << GetStringFromType(value.type).c_str() << " " << value.name.c_str() << ";\n";
-		}
-
-		compiledShaderBuilder << "} Properties;\n\n";
-
-		// Write in
-
-		compiledShaderBuilder << "struct " << GetStringFromStage(stage).c_str() << "Input" << "\n{\n";
-
-		for (int i = 0; i < shader->in.values.size(); i++)
-		{
-			const Value& value = shader->in.values.at(i);
-
-			compiledShaderBuilder << "\t" << GetStringFromType(value.type) << " " << value.name << " : " << value.semantic << ";\n";
-		}
-
-		compiledShaderBuilder << "}\n\n";
-
-		// Write out
-
-		compiledShaderBuilder << "struct " << GetStringFromStage(stage).c_str() << "Output" << "\n{\n";
-
-		for (int i = 0; i < shader->out.size(); i++)
-		{
-			const Value& value = shader->out.at(i);
-
-			compiledShaderBuilder << "\t" << GetStringFromType(value.type) << " " << value.name << " : " << value.semantic << ";\n";
-		}
-
-		compiledShaderBuilder << "}\n\n";
-
-		// Write functions
-
-		for (int i = 0; i < shader->exportedFunctions.size(); i++)
-		{
-			Function function = shader->exportedFunctions.at(i);
-
-			compiledShaderBuilder << GetStringFromType(function.out.type).c_str() << " " << function.name.c_str() << "(";
-
-			for (int j = 0; j < function.params.size(); j++)
-			{
-				const Value& param = function.params.at(j);
-
-				compiledShaderBuilder << GetStringFromType(param.type) << " " << param.name.c_str();
-
-				if (j < function.params.size() - 1)
-					compiledShaderBuilder << ", ";
-			}
-
-			compiledShaderBuilder << ")\n{\n";
-
-			std::vector<std::string> functionCodeSplit = Split(function.code, '\n');
-
-			for (int j = 0; j < functionCodeSplit.size(); j++)
-			{
-				const std::string& str = functionCodeSplit.at(j);
-
-				compiledShaderBuilder << "\t" << str.c_str() << "\n";
-			}
-
-			compiledShaderBuilder << "}\n\n";
-		}
-
-		// Write main code
-
-		compiledShaderBuilder << GetStringFromStage(stage).c_str() << "Output main(" << GetStringFromStage(stage).c_str() << "Input In)\n{\n\t" << GetStringFromStage(stage).c_str() << "Output Out;\n";
-
-		std::vector<std::string> mainCodeSplit = Split(shader->code, '\n');
-
-		for (int i = 0; i < mainCodeSplit.size(); i++)
-		{
-			std::string str = mainCodeSplit.at(i);
-
-			compiledShaderBuilder << "\t" << str.c_str() << "\n";
-		}
-
-		compiledShaderBuilder << "\n\treturn Out;\n}";
-
-		compiledShader = compiledShaderBuilder.str();
-
-		return compiledShader;
 	}
 
 	std::string IntermediateRepresentation::Compile(const Stage& stage)
@@ -146,15 +69,37 @@ namespace StarLab
 		else
 			shader = &pixelShader;
 
+		std::vector<Value*> constants;
+		std::vector<Value*> textures;
+
+		for (int i = 0; i < shader->usedProperties.size(); i++)
+		{
+			const Value& value = shader->usedProperties.at(i);
+
+			auto filterPair = m_propertyFilter.find(value.type);
+
+			if (filterPair != m_propertyFilter.end())
+			{
+				if (filterPair->second.isConstant)
+				{
+					constants.push_back(const_cast<Value*>(&value));
+				}
+				else if (filterPair->second.isTexture)
+				{
+					textures.push_back(const_cast<Value*>(&value));
+				}
+			}
+		}
+
 		// Write constant buffer layout
 
-		if (shader->usedProperties.size() > 0)
+		if (constants.size() > 0)
 		{
 			compiledShaderBuilder << "cbuffer ConstantBuffer : register(b0)\n{\n";
 
-			for (int i = 0; i < shader->usedProperties.size(); i++)
+			for (int i = 0; i < constants.size(); i++)
 			{
-				const Value& value = shader->usedProperties.at(i);
+				const Value& value = *constants.at(i);
 
 				compiledShaderBuilder << "\t" << GetStringFromType(value.type).c_str() << " " << value.name.c_str() << ";\n";
 			}
@@ -162,13 +107,32 @@ namespace StarLab
 			compiledShaderBuilder << "};\n\n";
 		}
 
+		// Write textures
+
+		if (textures.size() > 0)
+		{
+			for (int i = 0; i < textures.size(); i++)
+			{
+				const Value& value = *textures.at(i);
+
+				compiledShaderBuilder << "Texture2D " << value.name.c_str() << " : register(t" << i << ")" << ";\n";
+			}
+
+			compiledShaderBuilder << "\n";
+		}
+
+		// Write sampler state
+
+		if (shader->GetSamplerState().GetName() != "")
+			compiledShaderBuilder << "SamplerState " << shader->GetSamplerState().GetName().c_str() << " : register(s0);" << "\n\n"; 
+
 		// Write in
 
 		compiledShaderBuilder << "struct " << GetStringFromStage(stage).c_str() << "Input" << "\n{\n";
 
-		for (int i = 0; i < shader->in.values.size(); i++)
+		for (int i = 0; i < shader->in.size(); i++)
 		{
-			const Value& value = shader->in.values.at(i);
+			const Value& value = shader->in.at(i);
 
 			compiledShaderBuilder << "\t" << GetStringFromType(value.type) << " " << value.name << " : " << value.semantic << ";\n";
 		}
@@ -310,6 +274,8 @@ namespace StarLab
 			return Type::SLFloat4x4;
 		else if (sType == "int")
 			return Type::SLInt;
+		else if (sType == "texture")
+			return Type::SLTexture;
 		else
 			return Type::SLUnknown;
 	}
@@ -353,36 +319,6 @@ namespace StarLab
 			}
 		}
 
-		// Get layouts
-
-		Hjson::Value& layouts = root["Layouts"];
-
-		if (layouts.defined())
-		{
-			for (auto& it = layouts.begin(); it != layouts.end(); it++)
-			{
-				Layout layout;
-
-				layout.name = it->first;
-				
-				Hjson::Value layoutValues = it->second;
-
-				for (int i = 0; i < layoutValues.size(); i++)
-				{
-					Hjson::Value layoutValue = layoutValues[i];
-					Value value;
-
-					value.type = GetTypeFromString(layoutValue["type"].to_string());
-					value.name = layoutValue["name"].to_string();
-					value.semantic = layoutValue["semantic"].to_string();
-
-					layout.values.push_back(value);
-				}
-
-				this->layouts.push_back(layout);
-			}
-		}
-
 		// Get functions
 
 		Hjson::Value functions = root["Functions"];
@@ -421,14 +357,63 @@ namespace StarLab
 			}
 		}
 
+		// Get Sampler States
+
+		Hjson::Value hSamplerStates = root["SamplerStates"];
+
+		if (hSamplerStates.defined())
+		{
+			for (auto& it = hSamplerStates.begin(); it != hSamplerStates.end(); it++)
+			{
+				SamplerState samplerState;
+				samplerState.m_name = it->first;
+
+				Hjson::Value& samplerValue = it->second;
+				
+				if (samplerValue["Filter"].defined())
+					samplerState.SetFilterFromString(samplerValue["Filter"].to_string());
+
+				if (samplerValue["AddressU"].defined())
+					samplerState.SetAddressModeFromString(samplerValue["AddressU"].to_string(), samplerState.m_addressU);
+
+				if (samplerValue["AddressV"].defined())
+					samplerState.SetAddressModeFromString(samplerValue["AddressV"].to_string(), samplerState.m_addressV);
+
+				if (samplerValue["AddressW"].defined())
+					samplerState.SetAddressModeFromString(samplerValue["AddressW"].to_string(), samplerState.m_addressW);
+
+				if (samplerValue["MipLodBias"].defined())
+					samplerState.m_mipLodBias = static_cast<float>(samplerValue["MipLodBias"].to_double());
+
+				if (samplerValue["MaxAnisotropy"].defined())
+					samplerState.m_maxAnisotropy = static_cast<unsigned int>(samplerValue["MipLodBias"].to_int64());
+
+				if (samplerValue["ComparisonFunc"].defined())
+					samplerState.SetComparisonFuncFromString(samplerValue["ComparisonFunc"].to_string());
+
+				if (samplerValue["MinLod"].defined())
+					samplerState.m_minLod = static_cast<float>(samplerValue["MinLod"].to_double());
+
+				if (samplerValue["MaxLod"].defined())
+					samplerState.m_maxLod = static_cast<float>(samplerValue["MaxLod"].to_double());
+
+				samplerStates.push_back(samplerState);
+			}
+		}
+
 		// Get vertex and pixel
 
-		ParseShader(root["Stages"]["Vertex"], vertexShader);
-		ParseShader(root["Stages"]["Pixel"], pixelShader);
+		ParseShader(root["Stages"]["Vertex"], vertexShader, Stage::STVertex);
+		ParseShader(root["Stages"]["Pixel"], pixelShader, Stage::STPixel);
+
+		LoadIncludes(root["Includes"]);
 	}
 
-	void IntermediateRepresentation::ParseShader(Hjson::Value& stage, Shader& outShader)
+	void IntermediateRepresentation::ParseShader(Hjson::Value& stage, Shader& outShader, const Stage& shaderStage)
 	{
+		if (stage.defined() == false)
+			return;
+
 		Hjson::Value exportedFunctionsValue = stage["ExportedFunctions"];
 
 		if (exportedFunctionsValue.defined())
@@ -448,17 +433,10 @@ namespace StarLab
 			}
 		}
 
-		Hjson::Value in = stage["In"];
-
-		std::string& nameLookingFor = in.to_string();
-		for (auto& it = layouts.begin(); it != layouts.end(); it++)
-		{
-			if (it->name == nameLookingFor)
-			{
-				outShader.in = *it;
-				break;
-			}
-		}
+		if (shaderStage == Stage::STVertex)
+			outShader.in = DefaultLayouts::DefaultStarLabIn;
+		else
+			outShader.in = DefaultLayouts::DefaultStarLabOut;
 
 		Hjson::Value usedPropertiesValue = stage["Properties"];
 
@@ -478,20 +456,32 @@ namespace StarLab
 			}
 		}
 
-		Hjson::Value outValue = stage["Out"];
+		Hjson::Value& usedSamplerStates = stage["SamplerState"];
 
-		for (int i = 0; i < outValue.size(); i++)
+		if (usedSamplerStates.defined())
 		{
-			Hjson::Value out = outValue[i];
-			Value value;
+			Hjson::Value usedSamplerStateName = usedSamplerStates;
 
-			value.type = GetTypeFromString(out["type"].to_string());
-			value.name = out["name"].to_string();
-			value.semantic = out["semantic"].to_string();
-
-			outShader.out.push_back(value);
+			for (int i = 0; i < samplerStates.size(); i++)
+			{
+				if (samplerStates.at(i).m_name == usedSamplerStateName)
+				{
+					outShader.samplerState = samplerStates.at(i);
+				}
+			}
 		}
 
-		outShader.code = stage["Code"].to_string();
+		if (shaderStage == Stage::STVertex)
+			outShader.out = DefaultLayouts::DefaultStarLabOut;
+		else
+			outShader.out = DefaultLayouts::DefaultStarLabOutPixel;
+
+		if (outShader.code == "")
+			outShader.code = stage["Code"].to_string();
+		else
+		{
+			outShader.code += "\n";
+			outShader.code += stage["Code"].to_string();
+		}
 	}
 }

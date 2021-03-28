@@ -13,13 +13,17 @@ namespace StarLab
 		SLFloat3,
 		SLFloat4,
 		SLInt,
-		SLFloat4x4
+		SLFloat4x4,
+		SLTexture
 	};
 
 	class Value
 	{
 	public:
 		
+		Value(const Type& _type, const std::string& _name, const std::string& _semantic) : type(_type), name(_name), semantic(_semantic) {}
+		Value() {};
+
 		friend class IntermediateRepresentation;
 
 		const Type& GetType() const { return type; } 
