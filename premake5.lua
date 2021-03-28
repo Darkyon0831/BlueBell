@@ -31,7 +31,7 @@ workspace "BlueBell"
 
         location "%{prj.name}/build"
 
-        includedirs { "dependencies/spdlog/include", "dependencies/imgui", "%{prj.name}/src", "StarLab/src", "dependencies/glslang/include", "dependencies/spirv-cross/include", "dependencies/hjson/include" }
+        includedirs { "dependencies/spdlog/include", "dependencies/imgui", "%{prj.name}/src", "StarLab/src", "dependencies/glslang/include", "dependencies/spirv-cross/include", "dependencies/hjson/include", "dependencies/DirectXTK/include", "dependencies/FBXSdk/include", "BlueFBX/src"  }
 
         kind "StaticLib"
         
@@ -55,14 +55,14 @@ workspace "BlueBell"
 
         location "%{prj.name}/build"
 
-        includedirs { "BlueBell/src", "dependencies/spdlog/include", "dependencies/imgui", "StarLab/src", "dependencies/glslang/include", "dependencies/spirv-cross/include", "dependencies/hjson/include" }
+        includedirs { "BlueBell/src", "dependencies/spdlog/include", "dependencies/imgui", "StarLab/src", "dependencies/glslang/include", "dependencies/spirv-cross/include", "dependencies/hjson/include", "dependencies/DirectXTK/include", "BlueFBX/src", "dependencies/FBXSdk/include" }
 
         kind "ConsoleApp"
 
         language "C++"
 
-        libdirs { "BlueBell/bin/%{cfg.platform}/%{cfg.buildcfg}", "StarLab/bin/%{cfg.platform}/%{cfg.buildcfg}", "ImGui/bin/%{cfg.platform}/%{cfg.buildcfg}", "dependencies/glslang/lib/%{cfg.buildcfg}", "dependencies/spirv-cross/lib/%{cfg.buildcfg}", "dependencies/hjson/lib/%{cfg.buildcfg}" }
-        links { "BlueBell", "ImGui", "StarLab" }
+        libdirs { "BlueBell/bin/%{cfg.platform}/%{cfg.buildcfg}", "StarLab/bin/%{cfg.platform}/%{cfg.buildcfg}", "ImGui/bin/%{cfg.platform}/%{cfg.buildcfg}", "dependencies/glslang/lib/%{cfg.buildcfg}", "dependencies/spirv-cross/lib/%{cfg.buildcfg}", "dependencies/hjson/lib/%{cfg.buildcfg}", "BlueFBX/bin/%{cfg.platform}/%{cfg.buildcfg}", "dependencies/DirectXTK/lib/%{cfg.buildcfg}/%{cfg.platform}", "dependencies/FBXSdk/lib/%{cfg.platform}/%{cfg.buildcfg}" }
+        links { "BlueBell", "ImGui", "StarLab", "DirectXTK", "libfbxsdk-md", "libxml2-md", "zlib-md", "BlueFBX" }
 
         files { "%{prj.name}/src/**.h", "%{prj.name}/src/**.cpp" }
 

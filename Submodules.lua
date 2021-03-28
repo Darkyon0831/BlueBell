@@ -7,6 +7,16 @@ project "ImGui"
     targetname "%{prj.name}"
     objdir "%{prj.name}/bin/obj"
 
+project "BlueFBX"
+    location "%{prj.name}/build"
+    kind "StaticLib"    
+    language "C++"
+    includedirs { "dependencies/FBXSdk/include" }
+    files { "%{prj.name}/src/%{prj.name}/**.h", "%{prj.name}/src/%{prj.name}/**.cpp" }
+    targetdir "%{prj.name}/bin/%{cfg.platform}/%{cfg.buildcfg}"
+    targetname "%{prj.name}"
+    objdir "%{prj.name}/bin/obj"
+
 project "StarLab"
 
     location "%{prj.name}/build"
