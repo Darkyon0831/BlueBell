@@ -26,18 +26,28 @@ namespace BlueBell
 		rasterDesc.MultisampleEnable = false;
 		rasterDesc.AntialiasedLineEnable = false;
 
+		m_pMesh = BlueBerry()->Allocate<Mesh>("../../game/models/simpleCube2.fbx");
+
+		// Bottom left
 		Vertex vertex[4];
-		vertex[0].position = Vector3D(-10.0f, -0.5f, -5.0f);
-		vertex[0].color = Vector4D(0.2f, 0.5f, 0.2f, 1.0f);
+		vertex[0].position = Vector3D(-0.5f, -0.5f, 0.0f);
+		vertex[0].color = Vector4D(1.0f, 0.0f, 0.0f, 1.0f);
+		vertex[0].uv = Vector2D(0.0f, 0.0f);
 		
-		vertex[1].position = Vector3D(-10.0f, 0.5f, -5.0f);
-		vertex[1].color = Vector4D(0.2f, 0.5f, 0.2f, 1.0f);
+		// Upper left
+		vertex[1].position = Vector3D(-0.5f, 0.5f, 0.0f);
+		vertex[1].color = Vector4D(0.0f, 1.0f, 0.0f, 1.0f);
+		vertex[1].uv = Vector2D(0.0f, 1.0f);
 
-		vertex[2].position = Vector3D(10.0f, 0.5f, -5.0f);
-		vertex[2].color = Vector4D(0.2f, 0.5f, 0.2f, 1.0f);
+		// Upper right
+		vertex[2].position = Vector3D(0.5f, 0.5f, 0.0f);
+		vertex[2].color = Vector4D(0.0f, 0.0f, 1.0f, 1.0f);
+		vertex[2].uv = Vector2D(1.0f, 1.0f);
 
-		vertex[3].position = Vector3D(10.0f, -0.5f, -5.0f);
-		vertex[3].color = Vector4D(0.2f, 0.5f, 0.2f, 1.0f);
+		// Bottom right
+		vertex[3].position = Vector3D(0.5f, -0.5f, 0.0f);
+		vertex[3].color = Vector4D(1.0f, 1.0f, 0.0f, 1.0f);
+		vertex[3].uv = Vector2D(1.0f, 0.0f);
 
 		int indicies[6];
 		indicies[0] = 0;
@@ -47,27 +57,24 @@ namespace BlueBell
 		indicies[4] = 3;
 		indicies[5] = 0;
 
-		m_pIr = BlueBerry()->Allocate<StarLab::IntermediateRepresentation>();
+		m_pMaterial = BlueBerry()->Allocate<Material>("StarLabTesting");
 
-		m_pIr->LoadFromFile("../../game/shaders/StarLabTesting.starlab");
-		m_pIr->CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STVertex, "OutputVertex");
-		m_pIr->CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STPixel, "OutputPixel");
+		m_pMaterial->SetTexture("ColorMap", "../../game/textures/Test4.dds");
 
-		m_material.LoadFromStarLab(*m_pIr);
+		Material::Value ambientStrength = { 0 };
+		Material::Value lightColor = { 0 };
 
-		m_pVertexBuffer = BlueBerry()->Allocate<VertexBuffer>(vertex, 4 * sizeof(Vertex));
-		m_pIndexBuffer = BlueBerry()->Allocate<IndexBuffer>(indicies, 6 * sizeof(int));
+		ambientStrength.vF = 1.0f;
+		lightColor.vV4D = Vector4D(1.0f, 1.0f, 1.0f, 1.0f);
 
-		size_t memUsed = BlueBerry()->GetAllocator()->GetBlockSize() - BlueBerry()->GetAllocator()->GetMemLeft();
-		char* currentAddress = BlueBerry()->GetAllocator()->GetBlock() + memUsed;
-		const ID3D11VertexShader* vertexS = m_material.GetShader()->GetVertexShader();
-		const ID3D11PixelShader* pixelS = m_material.GetShader()->GetPixelShader();
+		m_pMaterial->SetPropertyValue("ambientStrength", ambientStrength);
+		m_pMaterial->SetPropertyValue("lightColor", lightColor);
 
-		m_pVertexBuffer->SetInputLayout(*m_material.GetLayout());
+		//m_pMesh->GetVertexBuffer()->SetInputLayout(*m_pMaterial->GetLayout());
 
 		BB_CHECK_HR(pDevice->CreateRasterizerState(&rasterDesc, &m_pRasterizerState), "Could not create rasterizer state");
 
-		const ID3D11VertexShader* vertexShader = m_material.GetShader()->GetVertexShader();
+		const ID3D11VertexShader* vertexShader = m_pMaterial->GetShader()->GetVertexShader();
 
 		int value = BlueBerry()->GetIntValueOfMemory(vertexShader, 4);
 
@@ -79,8 +86,7 @@ namespace BlueBell
 		BlueBerry()->Deallocate(m_pSwapChain);
 		Device::DeleteInstance();
 
-		BlueBerry()->Deallocate(m_pVertexBuffer);
-		BlueBerry()->Deallocate(m_pIndexBuffer);
+		BlueBerry()->Deallocate(m_pMaterial);
 
 		m_pRenderTargetView->Release();
 		m_pRasterizerState->Release();
@@ -105,8 +111,8 @@ namespace BlueBell
 
 		m_viewPort.TopLeftX = 0;
 		m_viewPort.TopLeftY = 0;
-		m_viewPort.Width = 2564;
-		m_viewPort.Height = 990;
+		m_viewPort.Width = 1920;
+		m_viewPort.Height = 1080;
 		m_viewPort.MinDepth = 0;
 		m_viewPort.MaxDepth = 1;
 
@@ -123,20 +129,12 @@ namespace BlueBell
 
 		pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, nullptr);
 
-		float color[4] = { 0, 0, 0, 1 };
+		float color[4] = { 0.25f, 0.25f, 0.25f, 1 };
 		pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 	}
 
 	void D3D11::Render()
 	{
-		const ID3D11VertexShader* vertexShader = m_material.GetShader()->GetVertexShader();
-		const ID3D11PixelShader* pixelShader = m_material.GetShader()->GetPixelShader();
-
-		int ddd = BlueBerry()->GetIntValueOfMemory(vertexShader, 4);
-		int dddd = BlueBerry()->GetIntValueOfMemory(pixelShader, 4);
-
-		int i = 0;
-
 		ID3D11DeviceContext* pDeviceContext = Device::GetInstance()->GetDeviceContext();
 		Scene* pActiveScene = SceneManager::GetInstance()->GetActiveScene();
 
@@ -152,28 +150,27 @@ namespace BlueBell
 		Material::Value value2 = { 0 };
 		Material::Value value3 = { 0 };
 		value.vM = modelViewProj.model;
-		m_material.SetPropertyValue("modelMatrix", value);
+		m_pMaterial->SetPropertyValue("modelMatrix", value);
 
 		value2.vM = modelViewProj.view;
-		m_material.SetPropertyValue("viewMatrix", value2);
+		m_pMaterial->SetPropertyValue("viewMatrix", value2);
 
 		value3.vM = modelViewProj.projection;
-		m_material.SetPropertyValue("projectionMatrix", value3);
+		m_pMaterial->SetPropertyValue("projectionMatrix", value3);
 
-		m_material.Build();
+		m_pMaterial->Build();
 
 		unsigned int stride = 4 * sizeof(float);
 		unsigned int offset = 0;
 
-		m_pVertexBuffer->Bind();
-		m_pIndexBuffer->Bind();
+		m_pMesh->Bind();
 		
-		m_material.Bind();
+		m_pMaterial->Bind();
 
 		pDeviceContext->RSSetState(m_pRasterizerState);
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		pDeviceContext->DrawIndexed(6, 0, 0);
+		//pDeviceContext->DrawIndexed(36, 0, 0);
 	}
 
 	void D3D11::Present()

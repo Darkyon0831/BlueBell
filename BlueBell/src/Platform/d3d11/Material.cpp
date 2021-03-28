@@ -7,14 +7,24 @@
 
 namespace BlueBell
 {
-	Material::Material()
+	Material::Material(const std::string& rShaderName)
 		: m_vertexConstantBufferSize(0)
 		, m_pixelConstantBufferSize(0)
 		, m_pBufferLayout(nullptr)
 		, m_pVertexConstantBuffer(nullptr)
 		, m_pPixelConstantBuffer(nullptr)
+		, m_pVertexSamplerState(nullptr)
+		, m_pPixelSamplerState(nullptr)
 		, m_pShader(nullptr)
+		, m_properties(0, BlueBerry()->GetAllocator())
+		, m_vertexUsedProperties(0, BlueBerry()->GetAllocator())
+		, m_pixelUsedProperties(0, BlueBerry()->GetAllocator())
+		, m_textures(0, BlueBerry()->GetAllocator())
 	{
+		m_whiteTexture = BlueBerry()->Allocate<Texture>();
+		m_whiteTexture->Load("../../game/textures/White.dds");
+
+		LoadFromStarLab(rShaderName);
 	}
 
 	Material::~Material()
@@ -26,17 +36,23 @@ namespace BlueBell
 		
 		BlueBerry()->Deallocate(m_pVertexCBDataTEMP);
 		//BlueBerry()->Deallocate(m_pPixelCBDataTEMP);
+
+		if (m_pVertexSamplerState != nullptr)
+			m_pVertexSamplerState->Release();
+
+		if (m_pPixelSamplerState != nullptr)
+			m_pPixelSamplerState->Release();
 	}
 
 	void Material::SetPropertyValue(const std::string& rName, Value& value)
 	{
 		Property* pProperty = nullptr;
 
-		for (int i = 0; i < m_properties.size(); i++)
+		for (int i = 0; i < m_properties.GetSize(); i++)
 		{
-			if (m_properties.at(i).name == rName)
+			if (m_properties.At(i).name == rName)
 			{
-				pProperty = &m_properties.at(i);
+				pProperty = &m_properties.At(i);
 				break;
 			}
 		}
@@ -44,18 +60,92 @@ namespace BlueBell
 		pProperty->value = value;
 	}
 
-	void Material::LoadFromStarLab(const StarLab::IntermediateRepresentation& rIr)
+	void Material::SetTexture(const std::string& rTextureName, const std::string& texturePath)
 	{
-		const std::vector<StarLab::Value>& rProperties = rIr.GetProperties();
+		Property* pProperty = nullptr;
+
+		int textureNum = 0;
+
+		for (int i = 0; i < m_properties.GetSize(); i++)
+		{
+			if (m_properties.At(i).name == rTextureName)
+			{
+				pProperty = &m_properties.At(i);
+				break;
+			}
+
+			if (m_properties.At(i).type == Type::MTTexture)
+				textureNum++;
+		}
+
+		pProperty->texturePath = texturePath;
+
+		Texture* pTexture = m_textures.At(textureNum);
+
+		if (pTexture != m_whiteTexture)
+			pTexture->Free();
+
+		pTexture->Load(texturePath);
+
+		int i = 0;
+	}
+
+	void Material::SetSamplerStateFromStarLab(const StarLab::SamplerState& samplerState, ID3D11SamplerState** m_pSamplerState)
+	{
+		D3D11_SAMPLER_DESC sampleDesc;
+
+		sampleDesc.Filter = static_cast<D3D11_FILTER>(samplerState.GetFilter());
+		sampleDesc.AddressU = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(samplerState.GetAddressU());
+		sampleDesc.AddressV = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(samplerState.GetAddressV());
+		sampleDesc.AddressW = static_cast<D3D11_TEXTURE_ADDRESS_MODE>(samplerState.GetAddressW());
+		sampleDesc.MipLODBias = samplerState.GetMipLodBias();
+		sampleDesc.MaxAnisotropy = samplerState.GetMaxAnisotropy();
+		sampleDesc.ComparisonFunc = static_cast<D3D11_COMPARISON_FUNC>(samplerState.GetComparisonFunc());
+		sampleDesc.MinLOD = samplerState.GetMinLod();
+		sampleDesc.MaxLOD = samplerState.GetMaxLod();
+
+		Device* pDevice = Device::GetInstance();
+
+		HRESULT hr = pDevice->GetDevice()->CreateSamplerState(&sampleDesc, m_pSamplerState);
+
+		BB_CHECK_HR(hr, "Could not create sampler state");
+	}
+
+	void Material::LoadFromStarLab(const std::string& rShaderName)
+	{
+		RefPtr<StarLab::IntermediateRepresentation> starlabIR;
+
+		if (ShaderCache::GetInstance()->CheckCache(rShaderName, starlabIR) == false)
+		{
+			starlabIR = RefPtr<StarLab::IntermediateRepresentation>();
+			ShaderCache::GetInstance()->AddCache(rShaderName, starlabIR);
+
+			std::stringstream filePath;
+			filePath << "../../game/shaders/";
+			filePath << rShaderName.c_str();
+			filePath << ".starlab";
+
+			starlabIR->LoadFromFile(filePath.str());
+			starlabIR->CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STVertex, rShaderName);
+			starlabIR->CompileAndSaveToFile(StarLab::IntermediateRepresentation::Stage::STPixel, rShaderName);
+		}
+
+		const std::vector<StarLab::Value>& rProperties = starlabIR->GetProperties();
 
 		for (int i = 0; i < rProperties.size(); i++)
 		{
-			Property mProperty = { rProperties.at(i).GetName(), (Material::Type)rProperties.at(i).GetType(), 1 };
+			Property mProperty = { rProperties.at(i).GetName(), (Material::Type)rProperties.at(i).GetType(), "", 1 };
 
-			m_properties.push_back(mProperty);
+			if (mProperty.type == Type::MTTexture)
+			{
+				Texture* pTexture = m_whiteTexture;
+				m_textures.PushBack(pTexture);
+			}
+
+			m_properties.PushBack(mProperty);
 		}
 
-		const std::vector<StarLab::Value>& rUsedVertexProperties = rIr.GetVertexShader().GetUsedProperties();
+		const std::vector<StarLab::Value>& rUsedVertexProperties = starlabIR->GetVertexShader().GetUsedProperties();
 
 		if (rUsedVertexProperties.size() > 0)
 		{
@@ -63,49 +153,86 @@ namespace BlueBell
 			{
 				StageProperty mProperty = { rUsedVertexProperties.at(i).GetName(), (Type)rUsedVertexProperties.at(i).GetType() };
 
-				m_vertexUsedProperties.push_back(mProperty); 
+				m_vertexUsedProperties.PushBack(mProperty); 
 
-				m_vertexConstantBufferSize += GetTypeSize(mProperty.type);
+				size_t typeSize = GetTypeSize(mProperty.type);
+
+				int remainder = typeSize % 16;
+
+				if (remainder > 0)
+					typeSize = typeSize + 16 - remainder;
+
+				m_vertexConstantBufferSize += typeSize;
 			}
 
 			m_pVertexConstantBuffer = BlueBerry()->Allocate<ConstantBuffer>(m_vertexConstantBufferSize);
 			m_pVertexCBDataTEMP = BlueBerry()->AllocateArray<char>(m_vertexConstantBufferSize);
 		}
 
-		const std::vector<StarLab::Value>& rUsedPixelProperties = rIr.GetPixelShader().GetUsedProperties();
+		const std::vector<StarLab::Value>& rUsedPixelProperties = starlabIR->GetPixelShader().GetUsedProperties();
 
 		if (rUsedPixelProperties.size() > 0)
 		{
+			bool doCreate = false;
+
 			for (int i = 0; i < rUsedPixelProperties.size(); i++)
 			{
-				StageProperty mProperty = { rUsedPixelProperties.at(i).GetName(), (Type)rUsedPixelProperties.at(i).GetType() };
+				if (rUsedPixelProperties.at(i).GetType() != StarLab::Type::SLTexture)
+				{		
+					StageProperty mProperty = { rUsedPixelProperties.at(i).GetName(), (Type)rUsedPixelProperties.at(i).GetType() };
 
-				m_pixelUsedProperties.push_back(mProperty); 
+					m_pixelUsedProperties.PushBack(mProperty); 
 
-				m_pixelConstantBufferSize += GetTypeSize(mProperty.type);
+					size_t typeSize = GetTypeSize(mProperty.type);
+
+					int remainder = typeSize % 16;
+
+					if (remainder > 0)
+						typeSize = typeSize + 16 - remainder;
+
+					m_pixelConstantBufferSize += typeSize;
+
+					doCreate = true;
+				}
 			}
 
-			m_pPixelConstantBuffer = BlueBerry()->Allocate<ConstantBuffer>(m_pixelConstantBufferSize);
-			m_pPixelCBDataTEMP = BlueBerry()->AllocateArray<char>(m_pixelConstantBufferSize);
+			if (doCreate)
+			{
+				m_pPixelConstantBuffer = BlueBerry()->Allocate<ConstantBuffer>(m_pixelConstantBufferSize);
+				m_pPixelCBDataTEMP = BlueBerry()->AllocateArray<char>(m_pixelConstantBufferSize);
+			}
 		}
 
-		Vector<BufferLayout::Variable> bufferInitList(rIr.GetVertexShader().GetIn().GetValues().size(), BlueBerry()->GetAllocator());
+		Vector<BufferLayout::Variable> bufferInitList(starlabIR->GetVertexShader().GetIn().size(), BlueBerry()->GetAllocator());
 
-		const std::vector<StarLab::Value> layoutValues = rIr.GetVertexShader().GetIn().GetValues();
+		const std::vector<StarLab::Value> inValues = starlabIR->GetVertexShader().GetIn();
 
-		for (int i = 0; i < layoutValues.size(); i++)
+		for (int i = 0; i < inValues.size(); i++)
 		{
-			BufferLayout::Variable blVariable = { layoutValues.at(i).GetSemantic().c_str(), (BufferLayout::VariableDataType)layoutValues.at(i).GetType() };
+			BufferLayout::Variable blVariable = { inValues.at(i).GetSemantic().c_str(), (BufferLayout::VariableDataType)inValues.at(i).GetType() };
 
 			bufferInitList.PushBack(blVariable);
 		}
 
-		m_pShader = BlueBerry()->Allocate<Shader>();
-		m_pShader->Load("../../game/fileoutputs/OutputVertex.hlsl", "../../game/fileoutputs/OutputPixel.hlsl");
+		if (starlabIR->GetPixelShader().GetSamplerState().GetName() != "")
+			SetSamplerStateFromStarLab(starlabIR->GetPixelShader().GetSamplerState(), &m_pPixelSamplerState);
 
-		m_pBufferLayout = BlueBerry()->Allocate<BufferLayout>(bufferInitList, m_pShader);
+		if (starlabIR->GetVertexShader().GetSamplerState().GetName() != "")
+			SetSamplerStateFromStarLab(starlabIR->GetVertexShader().GetSamplerState(), &m_pVertexSamplerState);
+
+		std::stringstream vertexFile;
+		std::stringstream pixelFile;
+		vertexFile << "../../game/shaders/temp/";
+		pixelFile << "../../game/shaders/temp/";
+		vertexFile << rShaderName.c_str() << "Vertex.hlsl";
+		pixelFile << rShaderName.c_str() << "Pixel.hlsl";
+
+		m_pShader = BlueBerry()->Allocate<Shader>();
+		m_pShader->Load(vertexFile.str().c_str(), pixelFile.str().c_str());
 
 		int i = 0;
+
+		m_pBufferLayout = BlueBerry()->Allocate<BufferLayout>(bufferInitList, m_pShader);
 	}
 
 	void Material::Build()
@@ -114,15 +241,15 @@ namespace BlueBell
 
 		if (m_vertexConstantBufferSize > 0)
 		{
-			for (int i = 0; i < m_vertexUsedProperties.size(); i++)
+			for (int i = 0; i < m_vertexUsedProperties.GetSize(); i++)
 			{
-				StageProperty sProperty = m_vertexUsedProperties.at(i);
+				StageProperty sProperty = m_vertexUsedProperties.At(i);
 
 				Property* pProperty = nullptr;
 
-				for (int j = 0; j < m_properties.size(); j++)
+				for (int j = 0; j < m_properties.GetSize(); j++)
 				{
-					Property mProperty = m_properties.at(j);
+					Property mProperty = m_properties.At(j);
 
 					if (mProperty.name == sProperty.name)
 					{
@@ -135,6 +262,11 @@ namespace BlueBell
 
 				memcpy(&m_pVertexCBDataTEMP[currentOffset], &pProperty->value, variableSize);
 				currentOffset += variableSize;
+
+				int remainder = currentOffset % 16;
+
+				if (remainder > 0)
+					currentOffset = currentOffset + 16 - remainder;
 			}
 
 			m_pVertexConstantBuffer->SetData((void*)m_pVertexCBDataTEMP, m_vertexConstantBufferSize);
@@ -144,15 +276,15 @@ namespace BlueBell
 		{
 			currentOffset = 0;
 
-			for (int i = 0; i < m_pixelUsedProperties.size(); i++)
+			for (int i = 0; i < m_pixelUsedProperties.GetSize(); i++)
 			{
-				StageProperty sProperty = m_pixelUsedProperties.at(i);
+				StageProperty sProperty = m_pixelUsedProperties.At(i);
 
 				Property* pProperty = nullptr;
 
-				for (int j = 0; j < m_properties.size(); j++)
+				for (int j = 0; j < m_properties.GetSize(); j++)
 				{
-					Property mProperty = m_properties.at(j);
+					Property mProperty = m_properties.At(j);
 
 					if (mProperty.name == sProperty.name)
 					{
@@ -165,6 +297,11 @@ namespace BlueBell
 
 				memcpy(&m_pPixelCBDataTEMP[currentOffset], &pProperty->value, variableSize);
 				currentOffset += variableSize;
+
+				int remainder = currentOffset % 16;
+
+				if (remainder > 0)
+					currentOffset = currentOffset + 16 - remainder;
 			}
 
 			m_pPixelConstantBuffer->SetData((void*)m_pPixelCBDataTEMP, m_pixelConstantBufferSize);
@@ -173,11 +310,33 @@ namespace BlueBell
 
 	void Material::Bind()
 	{
+		ID3D11DeviceContext* pDeviceContext = Device::GetInstance()->GetDeviceContext();
+
 		if (m_vertexConstantBufferSize > 0)
 			m_pVertexConstantBuffer->Bind(ConstantBuffer::BindStage::VS);
 
 		if (m_pixelConstantBufferSize > 0)
 			m_pPixelConstantBuffer->Bind(ConstantBuffer::BindStage::PS);
+
+		if (m_pPixelSamplerState != nullptr)
+			pDeviceContext->PSSetSamplers(0, 1, &m_pPixelSamplerState);
+
+		if (m_pVertexSamplerState != nullptr)
+			pDeviceContext->VSSetSamplers(0, 1, &m_pVertexSamplerState);
+
+		if (m_textures.GetSize() > 0)
+		{
+			ID3D11ShaderResourceView** shaderResourceViews = BlueBerry()->AllocateArray<ID3D11ShaderResourceView*>(m_textures.GetSize());
+
+			for (int i = 0; i < m_textures.GetSize(); i++)
+			{
+				shaderResourceViews[i] = m_textures.At(i)->GetShaderResourceView();
+			}
+
+			pDeviceContext->PSSetShaderResources(0, m_textures.GetSize(), shaderResourceViews);
+
+			BlueBerry()->Deallocate(shaderResourceViews);
+		}
 
 		m_pBufferLayout->Bind();
 		m_pShader->Bind();

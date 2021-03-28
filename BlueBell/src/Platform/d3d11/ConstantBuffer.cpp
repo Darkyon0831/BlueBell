@@ -20,12 +20,16 @@ namespace BlueBell
 		subresourceData.SysMemPitch = 0;
 		subresourceData.SysMemSlicePitch = 0;
 
+		m_size = size;
+
 		BB_CHECK_HR(pDevice->CreateBuffer(&bufferDesc, &subresourceData, &m_pBuffer), "Could not create constant buffer");
 	}
 
 	ConstantBuffer::ConstantBuffer(size_t size)
 	{
 		ID3D11Device* pDevice = Device::GetInstance()->GetDevice();
+		
+		// Constant buffer size must be multible of 16
 
 		D3D11_BUFFER_DESC bufferDesc;
 		bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -38,6 +42,8 @@ namespace BlueBell
 		HRESULT hr = pDevice->CreateBuffer(&bufferDesc, nullptr, &m_pBuffer);
 
 		int i = 0;
+
+		m_size = size;
 
 		BB_CHECK_HR(hr, "Could not create constant buffer");
 	}
@@ -63,7 +69,7 @@ namespace BlueBell
 	{
 		ID3D11DeviceContext* pDeviceContext = Device::GetInstance()->GetDeviceContext();
 
-		if (bindStage = BindStage::VS)
+		if (bindStage == BindStage::VS)
 			pDeviceContext->VSSetConstantBuffers(0, 1, &m_pBuffer);
 		else
 			pDeviceContext->PSSetConstantBuffers(0, 1, &m_pBuffer);

@@ -28,6 +28,9 @@ namespace BlueBell
 
 		void operator= (const float& rScalar);
 
+		bool operator== (const Vector3D& rVector);
+		bool operator!= (const Vector3D& rVector);
+
 		void Set(float _x, float _y, float _z);
 
 		void Normilize();

@@ -3,13 +3,17 @@
 
 #include "BufferLayout.h"
 #include "ConstantBuffer.h"
+#include "Assets/Texture.h"
+#include "Memory/RefPtr.h"
 
 #include "Math/Vector2D.h"
 #include "Math/Vector3D.h"
 #include "Math/Vector4D.h"
 #include "Math/Matrix.h"
+#include "../ShaderCache.h"
 
 #include "IntermediateRepresentation/IntermediateRepresentation.h"
+#include "IntermediateRepresentation/SamplerState.h"
 
 namespace BlueBell
 {
@@ -34,13 +38,15 @@ namespace BlueBell
 			MTFloat3,
 			MTFloat4,
 			MTInt,
-			MTFloat4x4
+			MTFloat4x4,
+			MTTexture
 		};
 
 		struct Property
 		{
 			std::string name;
 			Type type;
+			std::string texturePath;
 			Value value;
 		};
 
@@ -50,12 +56,15 @@ namespace BlueBell
 			Type type;
 		};
 
-		Material();
+		Material(const std::string& rShaderName);
 		~Material();
 
 		void SetPropertyValue(const std::string& rName, Value& value);
+		void SetTexture(const std::string& rTextureName, const std::string& texturePath);
 
-		void LoadFromStarLab(const StarLab::IntermediateRepresentation& rIr);
+		void SetSamplerStateFromStarLab(const StarLab::SamplerState& samplerState, ID3D11SamplerState** m_pSamplerState);
+
+		void LoadFromStarLab(const std::string& rShaderName);
 
 		void Build();
 		void Bind();
@@ -72,14 +81,21 @@ namespace BlueBell
 		int m_vertexConstantBufferSize;
 		int m_pixelConstantBufferSize;
 
-		std::vector<Property> m_properties;
-		std::vector<StageProperty> m_vertexUsedProperties;
-		std::vector<StageProperty> m_pixelUsedProperties;
+		Vector<Property> m_properties;
+		Vector<StageProperty> m_vertexUsedProperties;
+		Vector<StageProperty> m_pixelUsedProperties;
+		Vector<Texture*> m_textures;
 
 		BufferLayout* m_pBufferLayout;
 		ConstantBuffer* m_pVertexConstantBuffer;
 		ConstantBuffer* m_pPixelConstantBuffer;
+
+		ID3D11SamplerState* m_pVertexSamplerState;
+		ID3D11SamplerState* m_pPixelSamplerState;
+
 		Shader* m_pShader;
+
+		Texture* m_whiteTexture;
 
 		char* m_pVertexCBDataTEMP;
 		char* m_pPixelCBDataTEMP;

@@ -8,6 +8,7 @@
 #include "IndexBuffer.h"
 #include "VertexBuffer.h"
 #include "Material.h"
+#include "Assets/Mesh.h"
 
 #include "../../Math/Vector3D.h"
 #include "../../Math/Vector4D.h"
@@ -35,6 +36,7 @@ namespace BlueBell
 		{
 			Vector3D position;
 			Vector4D color;
+			Vector2D uv;
 		};
 
 		void InitSwapChain(HWND& windowHandle);
@@ -57,11 +59,8 @@ namespace BlueBell
 
 		ID3D11RasterizerState* m_pRasterizerState;
 
-		VertexBuffer* m_pVertexBuffer;
-		IndexBuffer* m_pIndexBuffer;
-
-		StarLab::IntermediateRepresentation* m_pIr;
-		Material m_material;
+		Material* m_pMaterial;
+		Mesh* m_pMesh;
 	};
 }
 

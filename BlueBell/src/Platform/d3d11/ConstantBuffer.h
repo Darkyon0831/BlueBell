@@ -5,6 +5,8 @@
 
 namespace BlueBell
 {
+	// TODO: constant buffer elements must be on an 16 byte alignment
+
 	class ConstantBuffer
 	{
 	public:

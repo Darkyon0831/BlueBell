@@ -57,7 +57,7 @@ namespace BlueBell
 				if (keyCode == 'W') m_keyboardMovement.ruf.z = 0;
 			}
 		}
-		/*else if (args.device == InputDevice::Mouse)
+		else if (args.device == InputDevice::Mouse)
 		{
 			if (args.mouse.mouseType == InputMouseType::Position)
 			{
@@ -84,6 +84,6 @@ namespace BlueBell
 				if(m_mouseMovement.pitch < -45.0f)
 					m_mouseMovement.pitch = -45.0f;
 			}
-		}*/
+		}
 	}
 }

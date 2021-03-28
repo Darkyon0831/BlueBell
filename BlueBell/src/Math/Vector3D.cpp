@@ -99,6 +99,22 @@ namespace BlueBell
 		z = rScalar;
 	}
 
+	bool Vector3D::operator==(const Vector3D& rVector)
+	{
+		if (x == rVector.x && y == rVector.y && z == rVector.z)
+			return true;
+		else
+			return false;
+	}
+
+	bool Vector3D::operator!=(const Vector3D & rVector)
+	{
+		if (x != rVector.x && y != rVector.y && z != rVector.z)
+			return true;
+		else
+			return false;
+	}
+
 	void Vector3D::Set(const float _x, const float _y, const float _z)
 	{
 		x = _x;

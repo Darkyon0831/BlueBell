@@ -60,7 +60,6 @@ namespace BlueBell
 		};
 
 		BufferLayout();
-		BufferLayout(const std::initializer_list<Variable>& variables, Shader* rShader);
 		BufferLayout(Vector<Variable>& variables, Shader* rShader);
 		BufferLayout(const BufferLayout& rBufferLayout);
 		~BufferLayout();
@@ -75,7 +74,6 @@ namespace BlueBell
 
 	private:
 
-		Vector<Variable> m_variables;
 		ID3D11InputLayout* m_pInputLayout;
 		
 		size_t m_stride;

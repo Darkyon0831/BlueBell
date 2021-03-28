@@ -20,21 +20,29 @@ namespace BlueBell
 
 	void GraphicsAPI::InitWindows(HWND& windowHandle)
 	{
-		m_pD3D11Handle->InitSwapChain(windowHandle);
+		#ifdef BB_D3D11
+			m_pD3D11Handle->InitSwapChain(windowHandle);
+		#endif 
 	}
 
 	void GraphicsAPI::Clear()
 	{
-		m_pD3D11Handle->Clear();
+		#ifdef BB_D3D11
+			m_pD3D11Handle->Clear();
+		#endif 
 	}
 
 	void GraphicsAPI::Render()
 	{
-		m_pD3D11Handle->Render();
+		#ifdef BB_D3D11
+			m_pD3D11Handle->Render();
+		#endif 
 	}
 
 	void GraphicsAPI::Present()
 	{
-		m_pD3D11Handle->Present();
+		#ifdef BB_D3D11
+			m_pD3D11Handle->Present();
+		#endif 
 	}
 }

@@ -3,6 +3,7 @@
 #include "Device.h"
 
 BlueBell::VertexBuffer::VertexBuffer(void* pVertexData, size_t size)
+	: m_bufferLayout()
 {
 	ID3D11Device* pDevice = Device::GetInstance()->GetDevice();
 

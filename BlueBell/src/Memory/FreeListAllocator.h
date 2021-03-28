@@ -4,6 +4,8 @@
 #include "IAllocator.h"
 #include "LinkedList.h"
 
+//#define __BB_LOGBIGGESTNODE__
+
 namespace BlueBell
 {
 	class BB_API FreeListAllocator : public IAllocator
@@ -39,8 +41,6 @@ namespace BlueBell
 		**/
 		FreeListAllocator(const size_t size, const FindAlgorithm findAlgorithm, IAllocator* pParentAllocator = nullptr);
 		~FreeListAllocator() override;
-
-
 
 		using NodePtr = LinkedList<FreeNodeHeader>::Node*;
 

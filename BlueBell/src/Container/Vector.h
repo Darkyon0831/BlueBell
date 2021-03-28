@@ -321,7 +321,7 @@ namespace BlueBell
 		}
 
 		void* ptr = m_stackAllocator.Allocate(sizeof(t), 1);
-		*(T*)ptr = t;
+		*(T*)ptr = T(t);
 		m_size += 1;
 	}
 

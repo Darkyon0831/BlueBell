@@ -10,6 +10,7 @@ namespace BlueBell
 		EventManager::CreateInstance();
 		SystemManager::CreateInstance();
 		SceneManager::CreateInstance();
+		ShaderCache::CreateInstance();
 		Clock::CreateInstance();
 		Scene* pScene = SceneManager::GetInstance()->CreateScene("DefaultScene");
 		SceneManager::GetInstance()->SetActiveScene(pScene);
@@ -39,8 +40,10 @@ namespace BlueBell
 		BlueBerry()->Deallocate(m_pImGuiRenderer);
 		BlueBerry()->Deallocate(m_pWindow);
 		BlueBerry()->Deallocate(m_pGraphicsAPI);
+		BlueBerry()->Deallocate(m_pDeltaTime);
 
 		Clock::DeleteInstance();
+		ShaderCache::DeleteInstance();
 		SceneManager::DeleteInstance();
 		SystemManager::DeleteInstance();
 		EventManager::DeleteInstance();

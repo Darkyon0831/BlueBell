@@ -3,6 +3,7 @@
 
 #include "Core.h"
 #include "BlueBerry.h"
+#include "Platform/ShaderCache.h"
 #include "../Events/EventManager.h"
 #include "../Scenes/SceneManager.h"
 #include "../ECS/SystemManager.h"

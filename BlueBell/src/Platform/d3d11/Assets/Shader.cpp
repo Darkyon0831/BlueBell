@@ -52,7 +52,7 @@ namespace BlueBell
 			vsCompileFlags = psCompileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL2;
 		#endif // RELEASE
 		
-		auto fileLogger = Logger::CreateNewFileLogger("../../game/fileoutputs/ShaderError.txt");
+		//auto fileLogger = Logger::CreateNewFileLogger("../../game/fileoutputs/ShaderError.txt");
 
 		HRESULT hr = D3DCompileFromFile(
 			vsWFile.c_str(),
@@ -67,7 +67,7 @@ namespace BlueBell
 
 		if (FAILED(hr))
 		{
-			fileLogger->info(reinterpret_cast<char*>(pVSErrorBlob->GetBufferPointer()));
+			Logger::GetLogger()->info(reinterpret_cast<char*>(pVSErrorBlob->GetBufferPointer()));
 			BB_CHECK_HR(hr, reinterpret_cast<char*>(pVSErrorBlob->GetBufferPointer()));
 		}
 
@@ -84,7 +84,7 @@ namespace BlueBell
 
 		if (FAILED(hr))
 		{
-			fileLogger->info(reinterpret_cast<char*>(pPSErrorBlob->GetBufferPointer()));
+			Logger::GetLogger()->info(reinterpret_cast<char*>(pPSErrorBlob->GetBufferPointer()));
 			BB_CHECK_HR(hr, reinterpret_cast<char*>(pPSErrorBlob->GetBufferPointer()));
 		}
 			

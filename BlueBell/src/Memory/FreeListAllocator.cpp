@@ -31,6 +31,8 @@ namespace BlueBell
 		if (pCurrentNode == nullptr)
 			return nullptr;
 
+		const size_t nodeSize = sizeof(LinkedList<FreeNodeHeader>::Node);
+
 		const size_t currentSize = pCurrentNode->header.size + sizeof(LinkedList<FreeNodeHeader>::Node);
 		const size_t neededSize = size + padding + sizeof(DataHeader);
 
@@ -117,7 +119,7 @@ namespace BlueBell
 
 	void FreeListAllocator::Find(const size_t size, const size_t alignment, NodePtr& pPrevNode, NodePtr& pCurrentNode, size_t& rPadding)
 	{
-		if (m_findAlgorithm = FindAlgorithm::EFindFirst)
+		if (m_findAlgorithm == FindAlgorithm::EFindFirst)
 			FindFirst(size, alignment, pPrevNode, pCurrentNode, rPadding);
 		else 
 			FindBest(size, alignment, pPrevNode, pCurrentNode, rPadding);
@@ -160,14 +162,17 @@ namespace BlueBell
 		NodePtr pPrev = nullptr;
 		size_t _currentSise = 0;
 
+		size_t currentSize = 0;
+		size_t neededSize = size + rPadding + sizeof(DataHeader);
+
 		rPadding = 0;
 
 		while (pNode != nullptr)
 		{
 			rPadding = GetPaddingWithHeader(reinterpret_cast<size_t>(pNode), sizeof(DataHeader), alignment);
 
-			const size_t currentSize = pNode->header.size + sizeof(sizeof(LinkedList<FreeNodeHeader>::Node));
-			const size_t neededSize = size + rPadding + sizeof(DataHeader);
+			currentSize = pNode->header.size + sizeof(LinkedList<FreeNodeHeader>::Node);
+			neededSize = size + rPadding + sizeof(DataHeader);
 
 			if ( (pCurrentNode == nullptr && currentSize >= neededSize) || (currentSize >= neededSize && pCurrentNode->header.size < _currentSise) )
 			{
@@ -188,6 +193,8 @@ namespace BlueBell
 			pPrev = pNode;
 			pNode = pNode->pNext;
 		}
+
+		int i = 0;
 	}
 
 	void FreeListAllocator::FindPrevNode(const size_t blockAddress, NodePtr& pPrevNode)
@@ -220,11 +227,6 @@ namespace BlueBell
 		if (pCurrentNode->pNext != nullptr)
 			nextNodeAddress = reinterpret_cast<size_t>(pCurrentNode->pNext);
 
-		size_t test = 0;
-
-		if (nextNodeAddress != 0)
-			test = currentNodeAddress + (sizeof(LinkedList<FreeNodeHeader>::Node) + pCurrentNode->header.size);
-
 		if (nextNodeAddress != 0 && currentNodeAddress + (sizeof(LinkedList<FreeNodeHeader>::Node) + pCurrentNode->header.size) == nextNodeAddress)
 		{
 			pCurrentNode->header.size += pCurrentNode->pNext->header.size + sizeof(LinkedList<FreeNodeHeader>::Node);
@@ -235,11 +237,6 @@ namespace BlueBell
 
 			memset(ptrToReset, 0x0, sizeof(LinkedList<FreeNodeHeader>::Node));
 		}
-
-		size_t test2 = 0;
-
-		if (prevNodeAddress != 0)
-			test2 = currentNodeAddress - (sizeof(LinkedList<FreeNodeHeader>::Node) + pPrevNode->header.size);
 
 		if (prevNodeAddress != 0 && currentNodeAddress - (sizeof(LinkedList<FreeNodeHeader>::Node) + pPrevNode->header.size) == prevNodeAddress)
 		{
@@ -255,7 +252,9 @@ namespace BlueBell
 
 	void FreeListAllocator::CheckBiggestNodeDebug()
 	{
-		/*NodePtr node = m_linkedList.GetHead();
+		#ifdef __BB_LOGBIGGESTNODE__
+
+		NodePtr node = m_linkedList.GetHead();
 		size_t currentBiggestSize = node->header.size;
 
 		while (node != nullptr)
@@ -266,6 +265,10 @@ namespace BlueBell
 			node = node->pNext;
 		}
 
-		BB_LOG_INFO("Current biggest node size is {0}", currentBiggestSize);*/
+		BB_LOG_INFO("Current biggest node size is {0}", currentBiggestSize);
+
+		int i = 0;	
+
+		#endif // __BB_LOGBIGGESTNODE__
 	}
 }

@@ -143,7 +143,7 @@ namespace BlueBell
 	{
 		BB_LOG_INFO("Allocated array type: {0}", typeid(Type).name());
 
-		BB_STATIC_ASSERT(std::is_pointer<Type>::value == false, "template variable Type cannot be an pointer")
+		//BB_STATIC_ASSERT(std::is_pointer<Type>::value == false, "template variable Type cannot be an pointer")
 
 		Type* ptr = reinterpret_cast<Type*>(m_allocator->Allocate(sizeof(Type) * size, alignof(Type)));
 
@@ -161,7 +161,7 @@ namespace BlueBell
 	{
 		BB_LOG_INFO("Deallocated type: {0}", typeid(Type).name());
 
-		BB_STATIC_ASSERT(std::is_pointer<Type>::value == false, "template variable Type cannot be an pointer")
+		//BB_STATIC_ASSERT(std::is_pointer<Type>::value == false, "template variable Type cannot be an pointer")
 
 		#ifdef DEBUG
 		if (m_profiling)

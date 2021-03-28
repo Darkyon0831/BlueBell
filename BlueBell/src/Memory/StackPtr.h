@@ -6,25 +6,19 @@
 namespace BlueBell
 {
 	template<typename T>
-	class StackPtr;
-
-	template<typename T, typename... Args>
-	StackPtr<T> MakeStackPtr(Args... args);
-
-	template<typename T>
 	class StackPtr
 	{
 	public:
 
-		StackPtr();
 		~StackPtr();
 
-		template<typename U, typename... Args>
-		friend StackPtr<U> MakeStackPtr<U>(Args... args);
+		template<typename... Args>
+		StackPtr(Args... args);
 
 		StackPtr(StackPtr& rStackPtr);
 
 		StackPtr& operator=(StackPtr& rStackPtr);
+		void operator=(const T& t);
 		T* operator->();
 		T& operator*();
 
@@ -35,22 +29,6 @@ namespace BlueBell
 	private:
 		T* m_pMem;
 	};
-
-	template<typename T, typename... Args>
-	StackPtr<T> MakeStackPtr(Args... args)
-	{
-		StackPtr<T> stackPtr;
-		stackPtr.m_pMem = BlueBerry()->Allocate<T>(std::forward<Args>(args)...);
-
-		return stackPtr;
-	}
-
-	template<typename T>
-	inline StackPtr<T>::StackPtr()
-		: m_pMem(nullptr)
-	{
-		int i = 0;
-	}
 
 	template<typename T>
 	inline StackPtr<T>::~StackPtr()
@@ -74,6 +52,12 @@ namespace BlueBell
 	}
 
 	template<typename T>
+	inline void StackPtr<T>::operator=(const T& t)
+	{
+		*m_pMem = t;
+	}
+
+	template<typename T>
 	inline T* StackPtr<T>::operator->()
 	{
 		return m_pMem;
@@ -90,6 +74,13 @@ namespace BlueBell
 	{
 		m_pMem = rStackPtr.m_pMem;
 		rStackPtr.m_pMem = nullptr;
+	}
+
+	template<typename T>
+	template<typename ...Args>
+	inline StackPtr<T>::StackPtr(Args ...args)
+	{
+		m_pMem = BlueBerry()->Allocate<T>(std::forward<Args>(args)...);
 	}
 }
 
