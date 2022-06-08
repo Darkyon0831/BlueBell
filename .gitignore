@@ -351,3 +351,8 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 BlueBell/build/cpp.hint
+BlueBell/bin
+BlueFBX/bin
+ImGui/bin
+StarLab/bin
+dependencies/bin/glslang
