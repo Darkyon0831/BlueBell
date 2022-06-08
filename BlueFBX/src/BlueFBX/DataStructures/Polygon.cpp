@@ -29,37 +29,37 @@ namespace BlueFBX
 		}
 	}
 
-	void Polygon::SetIndex(int id, int index)
+	void Polygon::SetIndex(const int& id, const int& index)
 	{
 		if (id < m_memberCount)
 			m_indicies[id] = index;
 	}
 
-	void Polygon::SetNormal(int id, Vector3D normal)
+	void Polygon::SetNormal(const int& id, const Vector3D& normal)
 	{
 		if (id < m_memberCount)
 			m_normals[id] = normal;
 	}
 
-	void Polygon::SetColor(int id, Vector4D color)
+	void Polygon::SetColor(const int& id, const Vector4D& color)
 	{
 		if (id < m_memberCount)
 			m_colors[id] = color;
 	}
 
-	void Polygon::SetTangent(int id, Vector3D tangent)
+	void Polygon::SetTangent(const int& id, const Vector3D& tangent)
 	{
 		if (id < m_memberCount)
 			m_tangents[id] = tangent;
 	}
 
-	void Polygon::SetBinormal(int id, Vector3D binormal)
+	void Polygon::SetBinormal(const int& id, const Vector3D& binormal)
 	{
 		if (id < m_memberCount)
 			m_binormals[id] = binormal;
 	}
 
-	int Polygon::GetIndex(int id)
+	const int& Polygon::GetIndex(const int& id)
 	{
 		if (id < m_memberCount)
 			return m_indicies[id];
@@ -67,7 +67,7 @@ namespace BlueFBX
 			return -1;
 	}
 
-	Vector3D Polygon::GetNormal(int id)
+	const Vector3D& Polygon::GetNormal(const int& id)
 	{
 		if (id < m_memberCount)
 			return m_normals[id];
@@ -75,7 +75,7 @@ namespace BlueFBX
 			return Vector3D { 0.0f, 0.0f, 0.0f };
 	}
 
-	Vector4D Polygon::GetColor(int id)
+	const Vector4D& Polygon::GetColor(const int& id)
 	{
 		if (id < m_memberCount && m_colors)
 			return m_colors[id];
@@ -83,7 +83,7 @@ namespace BlueFBX
 			return Vector4D { 0.0f, 0.0f, 0.0f, 0.0f };
 	}
 
-	Vector3D Polygon::GetTanget(int id)
+	const Vector3D& Polygon::GetTanget(const int& id)
 	{
 		if (id < m_memberCount)
 			return m_tangents[id];
@@ -91,7 +91,7 @@ namespace BlueFBX
 			return Vector3D { 0.0f, 0.0f, 0.0f };
 	}
 
-	Vector3D Polygon::GetBinormal(int id)
+	const Vector3D& Polygon::GetBinormal(const int& id)
 	{
 		if (id < m_memberCount)
 			return m_binormals[id];

@@ -33,11 +33,13 @@ SandBox::SandBox()
 
 	BlueBell::EventManager::GetInstance()->AddReceiverToEvent<BlueBell::OnInputArgs>(BB_BIND_FUNC(OnInput, this));
 
-	HJSONTesting testing;
-	testing.Test();
+	//HJSONTesting testing;
+	//testing.Test();
 
-	BlueFBX::Importer importer;
-	importer.Import("../../game/models/simpleCube2.fbx");
+	//BlueFBX::Scene scene = BlueFBX::Scene(BlueBell::BlueBerry()->GetAllocator());
+
+	//BlueFBX::Importer importer;
+	//importer.Import("../../game/models/simpleCube2.fbx", scene);
 }
 
 SandBox::~SandBox()

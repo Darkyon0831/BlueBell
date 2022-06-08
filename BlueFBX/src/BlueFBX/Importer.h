@@ -1,9 +1,13 @@
 #ifndef __BFBX_IMPORTER_H__
 #define __BFBX_IMPORTER_H__
 
-#include <string>
+#include "DataStructures/Scene.h"
 
+#include <dirent.h>
+#include <string>
 #include <fbxsdk.h>
+#include <Memory/IAllocator.h>
+#include <Container/Vector.h>
 
 namespace BlueFBX
 {
@@ -11,9 +15,14 @@ namespace BlueFBX
 	{
 	public:
 
-		void Import(const std::string& filePath);
+		Importer();
+		void Import(const std::string& filePath, Scene& scene);
 
-	private:
+	private: 
+
+		void GetAllTexturesNames(const std::string& filePath, BlueBell::IAllocator* allocator);
+
+		BlueBell::Vector<std::string> m_textureNames;
 	};
 }
 

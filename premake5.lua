@@ -55,7 +55,7 @@ workspace "BlueBell"
 
         location "%{prj.name}/build"
 
-        includedirs { "BlueBell/src", "dependencies/spdlog/include", "dependencies/imgui", "StarLab/src", "dependencies/glslang/include", "dependencies/spirv-cross/include", "dependencies/hjson/include", "dependencies/DirectXTK/include", "BlueFBX/src", "dependencies/FBXSdk/include" }
+        includedirs { "BlueBell/src", "dependencies/spdlog/include", "dependencies/imgui", "StarLab/src", "dependencies/glslang/include", "dependencies/spirv-cross/include", "dependencies/hjson/include", "dependencies/DirectXTK/include", "BlueFBX/src", "dependencies/FBXSdk/include", "dependencies/dirent/include" }
 
         kind "ConsoleApp"
 

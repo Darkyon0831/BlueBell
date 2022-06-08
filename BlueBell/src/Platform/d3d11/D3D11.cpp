@@ -26,7 +26,7 @@ namespace BlueBell
 		rasterDesc.MultisampleEnable = false;
 		rasterDesc.AntialiasedLineEnable = false;
 
-		m_pMesh = BlueBerry()->Allocate<Mesh>("../../game/models/simpleCube2.fbx");
+		// Mesh(void*& rVertices, const int& rVerticesSize, int*& rIndicies, const int& rIndiciesSize);
 
 		// Bottom left
 		Vertex vertex[4];
@@ -56,6 +56,8 @@ namespace BlueBell
 		indicies[3] = 2;
 		indicies[4] = 3;
 		indicies[5] = 0;
+
+		m_pMesh = BlueBerry()->Allocate<Mesh>((void*)vertex, 4, indicies, 6);
 
 		m_pMaterial = BlueBerry()->Allocate<Material>("StarLabTesting");
 

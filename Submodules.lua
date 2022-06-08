@@ -11,7 +11,7 @@ project "BlueFBX"
     location "%{prj.name}/build"
     kind "StaticLib"    
     language "C++"
-    includedirs { "dependencies/FBXSdk/include", "BlueBell/src/Memory" }
+    includedirs { "dependencies/FBXSdk/include", "BlueBell/src", "BlueBell/src", "dependencies/spdlog/include", "dependencies/dirent/include" }
     files { "%{prj.name}/src/%{prj.name}/**.h", "%{prj.name}/src/%{prj.name}/**.cpp" }
     targetdir "%{prj.name}/bin/%{cfg.platform}/%{cfg.buildcfg}"
     targetname "%{prj.name}"

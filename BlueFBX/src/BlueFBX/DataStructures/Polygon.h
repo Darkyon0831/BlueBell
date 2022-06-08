@@ -2,8 +2,9 @@
 #define __BFBX_POLYGON_H__
 
 #include "Vectors.h"
-#include "LinearAllocator.h"
-#include "IAllocator.h"
+
+#include <Memory/LinearAllocator.h>
+#include <Memory/IAllocator.h>
 
 namespace BlueFBX
 {
@@ -13,17 +14,17 @@ namespace BlueFBX
 
 		Polygon(size_t memberCount, BlueBell::IAllocator* pParentAllocator);
 
-		void SetIndex(int id, int index);
-		void SetNormal(int id, Vector3D normal);
-		void SetColor(int id, Vector4D color);
-		void SetTangent(int id, Vector3D tangent);
-		void SetBinormal(int id, Vector3D binormal);
+		void SetIndex(const int& id, const int& index);
+		void SetNormal(const int& id, const Vector3D& normal);
+		void SetColor(const int& id, const Vector4D& color);
+		void SetTangent(const int& id, const Vector3D& tangent);
+		void SetBinormal(const int& id, const Vector3D& binormal);
 
-		int GetIndex(int id);
-		Vector3D GetNormal(int id);
-		Vector4D GetColor(int id);
-		Vector3D GetTanget(int id);
-		Vector3D GetBinormal(int id);
+		const int& GetIndex(const int& id);
+		const Vector3D& GetNormal(const int& id);
+		const Vector4D& GetColor(const int& id);
+		const Vector3D& GetTanget(const int& id);
+		const Vector3D& GetBinormal(const int& id);
 
 	private:
 
