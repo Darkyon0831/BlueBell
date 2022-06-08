@@ -352,6 +352,6 @@ MigrationBackup/
 BlueBell/build/cpp.hint
 BlueBell/bin
 BlueFBX/bin
-dependencies/bin
 ImGui/bin
 StarLab/bin
+dependencies/bin/glslang
